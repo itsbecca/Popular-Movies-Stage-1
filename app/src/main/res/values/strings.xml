@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Popular Movies Stage 1</string>
+    <string name="api_url">http://api.themoviedb.org/3/movie/</string>
+    <string name="popular_sort">popular</string>
+    <string name="rating_sort">top_rated</string>
+    <string name="error_message">Error</string>
 </resources>
