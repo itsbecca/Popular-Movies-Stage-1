@@ -16,7 +16,6 @@ public class MainActivity extends AppCompatActivity {
 
     ProgressBar mProgressBar;
     TextView mSearchResults; //TODO remove once RecyclerView is setup
-    TextView mUrlDisplayTextView; //TODO Debug only: remove instances when finished
     TextView mErrorMessage;
 
     @Override
@@ -26,7 +25,6 @@ public class MainActivity extends AppCompatActivity {
 
         mProgressBar = (ProgressBar) findViewById(R.id.pb_loading_indicator);
         mSearchResults = (TextView) findViewById(R.id.tv_search_results);
-        mUrlDisplayTextView = (TextView) findViewById(R.id.tv_url_display);
         mErrorMessage = (TextView) findViewById(R.id.tv_error_message_display);
         makeMovieDbSearchQuery();
 
@@ -34,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void makeMovieDbSearchQuery() {
         URL movieDbSearchUrl = NetworkUtils.buildUrl();
-        //mUrlDisplayTextView.setText(movieDbSearchUrl.toString());
         new MovieDbQuery().execute(movieDbSearchUrl);
     }
 
@@ -47,14 +44,15 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(URL... params) {
             URL searchUrl = params[0];
-            String movieDbSearchResults = null;
+            String jsonMovieDbSearchResults = null;
             try {
-                movieDbSearchResults = NetworkUtils.getResponseFromHttpUrl(searchUrl);
+                jsonMovieDbSearchResults = NetworkUtils.getResponseFromHttpUrl(searchUrl);
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            return movieDbSearchResults;
+            return jsonMovieDbSearchResults;
         }
 
         @Override
@@ -62,7 +60,12 @@ public class MainActivity extends AppCompatActivity {
             mProgressBar.setVisibility(View.INVISIBLE);
             if (movieDbSearchResults != null && !movieDbSearchResults.equals("")) {
                 mErrorMessage.setVisibility(View.INVISIBLE);
-                mSearchResults.setText(movieDbSearchResults);
+//              TODO Remove try/catch for testing only
+//                try {
+//                    MovieDbJsonUtils.getMovieDbStringsFromJson(MainActivity.this, movieDbSearchResults);
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
             } else {
                 showErrorMessage();
             }
