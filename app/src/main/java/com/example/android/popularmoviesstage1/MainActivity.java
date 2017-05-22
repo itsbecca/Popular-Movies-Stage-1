@@ -1,5 +1,7 @@
 package com.example.android.popularmoviesstage1;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -8,7 +10,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.android.popularmoviesstage1.utilities.MovieDbJsonUtils;
 import com.example.android.popularmoviesstage1.utilities.NetworkUtils;
@@ -25,7 +26,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
     TextView mErrorMessage;
     MovieAdapter mAdapter;
     RecyclerView mList;
-    Toast mToast; //TODO delete when intent implemented
+    ArrayList<MovieClass> jsonMovieDbData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,13 +56,13 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
 
     @Override
     public void onListItemClick(int clickedItemIndex) {
-        if (mToast != null) {
-            mToast.cancel();
-        }
 
-        String toastMessage = "# " + clickedItemIndex;
-        mToast = Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT);
-        mToast.show();
+        Context context = MainActivity.this;
+        Class destinationActivity = MovieDetail.class;
+
+        Intent intent = new Intent(context,destinationActivity);
+        intent.putExtra(Intent.EXTRA_PACKAGE_NAME, jsonMovieDbData.get(clickedItemIndex)); //TODO: Replace Intent.EXTRA_PACKAGE_NAME, requires API lvl 24
+        startActivity(intent);
 
     }
 
@@ -77,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
 
             try {
                 String jsonMovieDbResponse = NetworkUtils.getResponseFromHttpUrl(searchUrl);
-                ArrayList<MovieClass> jsonMovieDbData = MovieDbJsonUtils.getMovieDbStringsFromJson(MainActivity.this, jsonMovieDbResponse);
+                jsonMovieDbData = MovieDbJsonUtils.getMovieDbStringsFromJson(MainActivity.this, jsonMovieDbResponse);
                 return jsonMovieDbData;
             } catch (IOException e) {
                 e.printStackTrace();

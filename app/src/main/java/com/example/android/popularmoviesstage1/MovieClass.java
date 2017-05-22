@@ -1,6 +1,9 @@
 package com.example.android.popularmoviesstage1;
 
-public class MovieClass {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class MovieClass implements Parcelable {
     private String movieTitle;
     private String posterUrl;
     private String synopsis;
@@ -15,6 +18,26 @@ public class MovieClass {
         this.userRating = userRating;
     }
 
+
+    protected MovieClass(Parcel in) {
+        movieTitle = in.readString();
+        posterUrl = in.readString();
+        synopsis = in.readString();
+        releaseDate = in.readString();
+        userRating = in.readString();
+    }
+
+    public static final Creator<MovieClass> CREATOR = new Creator<MovieClass>() {
+        @Override
+        public MovieClass createFromParcel(Parcel in) {
+            return new MovieClass(in);
+        }
+
+        @Override
+        public MovieClass[] newArray(int size) {
+            return new MovieClass[size];
+        }
+    };
 
     public String getMovieTitle() { return movieTitle; }
 
@@ -32,5 +55,19 @@ public class MovieClass {
 
     public String getUserRating() {
         return userRating;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(movieTitle);
+        dest.writeString(posterUrl);
+        dest.writeString(synopsis);
+        dest.writeString(releaseDate);
+        dest.writeString(userRating);
     }
 }
