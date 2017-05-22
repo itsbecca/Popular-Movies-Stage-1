@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="activity_pb_hw">42dp</dimen>
+    <dimen name="movie_poster_padding">5dp</dimen>
 </resources>

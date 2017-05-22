@@ -5,13 +5,16 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.ImageView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapterViewHolder> {
 
     private ArrayList<MovieClass> mMovieInfo;
+    private View view;
 
     @Override
     public MovieAdapterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -20,7 +23,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
         LayoutInflater inflater = LayoutInflater.from(context);
         boolean shouldAttachToParentImmediately = false;
 
-        View view = inflater.inflate(layoutIdForListItem, parent, shouldAttachToParentImmediately);
+        view = inflater.inflate(layoutIdForListItem, parent, shouldAttachToParentImmediately);
         MovieAdapterViewHolder viewHolder = new MovieAdapterViewHolder(view);
 
        return viewHolder;
@@ -28,8 +31,8 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
 
     @Override
     public void onBindViewHolder(MovieAdapterViewHolder movieAdapterViewHolder, int position) {
-        String currentMovieInfo = String.valueOf(mMovieInfo.get(position));
-        movieAdapterViewHolder.mMovieTextView.setText(currentMovieInfo);
+        String currentMovieInfo = String.valueOf(mMovieInfo.get(position).getPosterUrl());
+        Picasso.with(view.getContext()).load(currentMovieInfo).into(movieAdapterViewHolder.mMoviewPosterView);
     }
 
     @Override
@@ -42,11 +45,10 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
     }
 
     public class MovieAdapterViewHolder extends RecyclerView.ViewHolder {
-
-        public final TextView mMovieTextView;
+        public final ImageView mMoviewPosterView;
         public MovieAdapterViewHolder(View view) {
             super(view);
-            mMovieTextView = (TextView) view.findViewById(R.id.movie_data);
+            mMoviewPosterView = (ImageView) view.findViewById(R.id.movie_poster);
         }
 
     }

@@ -16,8 +16,7 @@ import java.util.ArrayList;
 public final class MovieDbJsonUtils {
 
     final static String BASE_URL = "http://image.tmdb.org/t/p";
-    final static String IMG_SIZE = "w185";
-
+    final static String IMG_SIZE = "w342";
 
     public static ArrayList<MovieClass> getMovieDbStringsFromJson(Context context, String movieDbJsonString) throws JSONException {
         final String MDB_MOVIE_TITLE = "original_title";

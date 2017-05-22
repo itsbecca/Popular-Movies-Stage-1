@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         mErrorMessage = (TextView) findViewById(R.id.tv_error_message_display);
         mList = (RecyclerView) findViewById(R.id.recyclerview_movie);
 
-        GridLayoutManager layoutManager = new GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false);
+        GridLayoutManager layoutManager = new GridLayoutManager(this, 3, GridLayoutManager.VERTICAL, false);
         mList.setLayoutManager(layoutManager);
         mList.setHasFixedSize(true);
 
