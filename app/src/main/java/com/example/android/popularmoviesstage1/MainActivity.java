@@ -3,20 +3,27 @@ package com.example.android.popularmoviesstage1;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.example.android.popularmoviesstage1.utilities.MovieDbJsonUtils;
 import com.example.android.popularmoviesstage1.utilities.NetworkUtils;
+
+import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
     ProgressBar mProgressBar;
-    TextView mSearchResults; //TODO remove once RecyclerView is setup
     TextView mErrorMessage;
+    MovieAdapter mAdapter;
+    RecyclerView mList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,8 +31,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mProgressBar = (ProgressBar) findViewById(R.id.pb_loading_indicator);
-        mSearchResults = (TextView) findViewById(R.id.tv_search_results);
         mErrorMessage = (TextView) findViewById(R.id.tv_error_message_display);
+        mList = (RecyclerView) findViewById(R.id.recyclerview_movie);
+
+        GridLayoutManager layoutManager = new GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false);
+        mList.setLayoutManager(layoutManager);
+        mList.setHasFixedSize(true);
+
+        mAdapter = new MovieAdapter();
+        mList.setAdapter(mAdapter);
+
+
         makeMovieDbSearchQuery();
 
     }
@@ -36,36 +52,34 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public class MovieDbQuery extends AsyncTask<URL, Void, String> {
+    public class MovieDbQuery extends AsyncTask<URL, Void, ArrayList<MovieClass>> {
 
         @Override
         protected void onPreExecute() { mProgressBar.setVisibility(View.VISIBLE);        }
 
         @Override
-        protected String doInBackground(URL... params) {
+        protected ArrayList<MovieClass> doInBackground(URL... params) {
             URL searchUrl = params[0];
-            String jsonMovieDbSearchResults = null;
-            try {
-                jsonMovieDbSearchResults = NetworkUtils.getResponseFromHttpUrl(searchUrl);
 
+            try {
+                String jsonMovieDbResponse = NetworkUtils.getResponseFromHttpUrl(searchUrl);
+                ArrayList<MovieClass> jsonMovieDbData = MovieDbJsonUtils.getMovieDbStringsFromJson(MainActivity.this, jsonMovieDbResponse);
+                return jsonMovieDbData;
             } catch (IOException e) {
                 e.printStackTrace();
+                return null;
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return null;
             }
-
-            return jsonMovieDbSearchResults;
         }
 
         @Override
-        protected void onPostExecute(String movieDbSearchResults) {
+        protected void onPostExecute(ArrayList<MovieClass> movieDbSearchResults) {
             mProgressBar.setVisibility(View.INVISIBLE);
-            if (movieDbSearchResults != null && !movieDbSearchResults.equals("")) {
+            if (movieDbSearchResults != null) {
                 mErrorMessage.setVisibility(View.INVISIBLE);
-//              TODO Remove try/catch for testing only
-//                try {
-//                    MovieDbJsonUtils.getMovieDbStringsFromJson(MainActivity.this, movieDbSearchResults);
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
+                mAdapter.setMovieInfo(movieDbSearchResults);
             } else {
                 showErrorMessage();
             }
