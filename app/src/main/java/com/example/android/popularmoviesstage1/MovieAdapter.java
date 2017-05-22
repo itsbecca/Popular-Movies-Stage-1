@@ -15,6 +15,15 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
 
     private ArrayList<MovieClass> mMovieInfo;
     private View view;
+    private final ListItemClickListener mOnClickListener;
+
+    public MovieAdapter(ListItemClickListener clickListener) {
+        mOnClickListener = clickListener;
+    }
+
+    public interface ListItemClickListener {
+        void onListItemClick(int clickedItemIndex);
+    }
 
     @Override
     public MovieAdapterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -44,13 +53,21 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
         return mMovieInfo.size();
     }
 
-    public class MovieAdapterViewHolder extends RecyclerView.ViewHolder {
+    public class MovieAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public final ImageView mMoviewPosterView;
+
         public MovieAdapterViewHolder(View view) {
             super(view);
             mMoviewPosterView = (ImageView) view.findViewById(R.id.movie_poster);
+            view.setOnClickListener(this);
         }
 
+        @Override
+        public void onClick(View view) {
+            int clickPosition = getAdapterPosition();
+            //MovieClass clickedMovie = mMovieInfo.get(clickPosition);
+            mOnClickListener.onListItemClick(clickPosition);
+        }
     }
 
     public void setMovieInfo(ArrayList<MovieClass> movieInfo) {

@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.popularmoviesstage1.utilities.MovieDbJsonUtils;
 import com.example.android.popularmoviesstage1.utilities.NetworkUtils;
@@ -18,14 +19,13 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MovieAdapter.ListItemClickListener {
 
     ProgressBar mProgressBar;
     TextView mErrorMessage;
     MovieAdapter mAdapter;
     RecyclerView mList;
-
-    //TODO why is list repeating itself?
+    Toast mToast; //TODO delete when intent implemented
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         mList.setLayoutManager(layoutManager);
         mList.setHasFixedSize(true);
 
-        mAdapter = new MovieAdapter();
+        mAdapter = new MovieAdapter(this);
         mList.setAdapter(mAdapter);
 
 
@@ -51,6 +51,18 @@ public class MainActivity extends AppCompatActivity {
     private void makeMovieDbSearchQuery() {
         URL movieDbSearchUrl = NetworkUtils.buildUrl();
         new MovieDbQuery().execute(movieDbSearchUrl);
+    }
+
+    @Override
+    public void onListItemClick(int clickedItemIndex) {
+        if (mToast != null) {
+            mToast.cancel();
+        }
+
+        String toastMessage = "# " + clickedItemIndex;
+        mToast = Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT);
+        mToast.show();
+
     }
 
 
