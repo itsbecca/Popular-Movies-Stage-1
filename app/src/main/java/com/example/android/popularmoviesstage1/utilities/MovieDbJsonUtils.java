@@ -20,6 +20,7 @@ public final class MovieDbJsonUtils {
 
 
     public static ArrayList<MovieClass> getMovieDbStringsFromJson(Context context, String movieDbJsonString) throws JSONException {
+        final String MDB_MOVIE_TITLE = "original_title";
         final String MDB_POSTER_PATH = "poster_path";
         final String MDB_SYNOPSIS = "overview";
         final String MDB_RELEASE_DATE = "release_date";
@@ -33,6 +34,7 @@ public final class MovieDbJsonUtils {
 
         for (int i = 0; i < results.length(); i++){
             JSONObject movie = results.getJSONObject(i);
+            String movieTitle = movie.getString(MDB_MOVIE_TITLE);
             String posterPath = movie.getString(MDB_POSTER_PATH);
             String synopsis = movie.getString(MDB_SYNOPSIS);
             String releaseDate = movie.getString(MDB_RELEASE_DATE);
@@ -40,7 +42,7 @@ public final class MovieDbJsonUtils {
 
             String posterUrl = buildPosterUrl(posterPath);
 
-            movies.add(new MovieClass(posterUrl,synopsis,releaseDate,userRating));
+            movies.add(new MovieClass(movieTitle,posterUrl,synopsis,releaseDate,userRating));
         }
 
         return movies;

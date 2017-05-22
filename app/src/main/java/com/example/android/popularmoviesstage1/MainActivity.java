@@ -25,6 +25,8 @@ public class MainActivity extends AppCompatActivity {
     MovieAdapter mAdapter;
     RecyclerView mList;
 
+    //TODO why is list repeating itself?
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

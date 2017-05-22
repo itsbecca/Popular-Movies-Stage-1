@@ -28,7 +28,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
 
     @Override
     public void onBindViewHolder(MovieAdapterViewHolder movieAdapterViewHolder, int position) {
-        String currentMovieInfo = String.valueOf(mMovieInfo);
+        String currentMovieInfo = String.valueOf(mMovieInfo.get(position));
         movieAdapterViewHolder.mMovieTextView.setText(currentMovieInfo);
     }
 
