@@ -2,4 +2,6 @@
 <resources>
     <dimen name="activity_pb_hw">42dp</dimen>
     <dimen name="movie_poster_padding">5dp</dimen>
+    <dimen name="padding_small">8dp</dimen>
+
 </resources>

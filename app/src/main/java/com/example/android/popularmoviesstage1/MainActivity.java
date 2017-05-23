@@ -1,6 +1,5 @@
 package com.example.android.popularmoviesstage1;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -26,7 +25,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity implements MovieAdapter.ListItemClickListener {
 
     ProgressBar mProgressBar;
-    TextView mErrorMessage;
+    TextView mEmptyView;
     MovieAdapter mAdapter;
     RecyclerView mList;
     ArrayList<MovieClass> jsonMovieDbData;
@@ -38,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
         setContentView(R.layout.activity_main);
 
         mProgressBar = (ProgressBar) findViewById(R.id.pb_loading_indicator);
-        mErrorMessage = (TextView) findViewById(R.id.tv_error_message_display);
+        mEmptyView = (TextView) findViewById(R.id.empty_view);
         mList = (RecyclerView) findViewById(R.id.recyclerview_movie);
 
         GridLayoutManager layoutManager = new GridLayoutManager(this, 3, GridLayoutManager.VERTICAL, false);
@@ -49,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
         mList.setAdapter(mAdapter);
 
         Spinner spinner = (Spinner) findViewById(R.id.spinner);
-        spinner.setOnItemSelectedListener(new SpinnerActivity());
+        spinner.setOnItemSelectedListener(new SpinnerSort());
 
         spinnerData = spinner.getSelectedItem().toString();
 
@@ -63,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
     }
 
 
-    public class SpinnerActivity extends Activity implements AdapterView.OnItemSelectedListener {
+    public class SpinnerSort implements AdapterView.OnItemSelectedListener {
 
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -84,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
         Class destinationActivity = MovieDetail.class;
 
         Intent intent = new Intent(context,destinationActivity);
-        intent.putExtra(Intent.EXTRA_PACKAGE_NAME, jsonMovieDbData.get(clickedItemIndex)); //TODO: Replace Intent.EXTRA_PACKAGE_NAME, requires API lvl 24
+        intent.putExtra(Intent.EXTRA_TEXT, jsonMovieDbData.get(clickedItemIndex));
         startActivity(intent);
 
     }
@@ -115,18 +114,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
         @Override
         protected void onPostExecute(ArrayList<MovieClass> movieDbSearchResults) {
             mProgressBar.setVisibility(View.INVISIBLE);
+
             if (movieDbSearchResults != null) {
-                mErrorMessage.setVisibility(View.INVISIBLE);
+                mEmptyView.setVisibility(View.INVISIBLE);
                 mAdapter.setMovieInfo(movieDbSearchResults);
             } else {
-                showErrorMessage();
+                mEmptyView.setText(R.string.no_results);
             }
         }
     }
-
-    public void showErrorMessage(){
-        mErrorMessage.setVisibility(View.VISIBLE);
-    }
-
 }
 

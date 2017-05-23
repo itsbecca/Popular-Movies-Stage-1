@@ -25,7 +25,6 @@ public final class MovieDbJsonUtils {
         final String MDB_RELEASE_DATE = "release_date";
         final String MDB_USER_RATING = "vote_average";
 
-        String[] parsedMovieData = null;
         JSONObject reader = new JSONObject(movieDbJsonString);
         JSONArray results = reader.getJSONArray("results");
 
@@ -49,20 +48,21 @@ public final class MovieDbJsonUtils {
     }
 
     public static String buildPosterUrl(String posterPath) {
-        String posterUrl;
+        String posterUrl = null;
 
         Uri builtUri = Uri.parse(BASE_URL).buildUpon()
                 .appendPath(IMG_SIZE)
                 .build();
 
-        URL url = null;
+        URL url;
         try {
             url = new URL(builtUri.toString() + posterPath);
+            posterUrl = url.toString();
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
 
-        posterUrl = url.toString();
+
         return posterUrl;
     }
 }

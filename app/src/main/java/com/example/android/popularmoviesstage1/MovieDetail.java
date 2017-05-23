@@ -20,7 +20,6 @@ public class MovieDetail extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
-        //getActionBar().setDisplayHomeAsUpEnabled(true); //TODO why no work?
 
         mMovieTitle = (TextView) findViewById(R.id.detail_movie_title);
         mMovieSynopsis = (TextView) findViewById(R.id.detail_movie_synopsis);
@@ -30,8 +29,8 @@ public class MovieDetail extends AppCompatActivity {
 
         Intent intentThatStartedThisActivity = getIntent();
 
-        if (intentThatStartedThisActivity.hasExtra(Intent.EXTRA_PACKAGE_NAME)) {
-            MovieClass current_movie = getIntent().getParcelableExtra(Intent.EXTRA_PACKAGE_NAME);
+        if (intentThatStartedThisActivity.hasExtra(Intent.EXTRA_TEXT)) {
+            MovieClass current_movie = getIntent().getParcelableExtra(Intent.EXTRA_TEXT);
             String mPosterUrl = current_movie.getPosterUrl();
             mMovieTitle.setText(current_movie.getMovieTitle());
             mMovieSynopsis.setText(current_movie.getSynopsis());
