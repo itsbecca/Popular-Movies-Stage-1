@@ -6,7 +6,7 @@
     <string name="error_message">Error</string>
     <string name="no_results">There are no movies to display</string>
     <string name="movie_poster">A Movie Poster</string>
-
+    <string name="no_internet_connection">Cannot return results: No Internet Connection</string>
 
     <string name="spinner_prompt">Sort Movies</string>
     <string-array name="movie_sort_array">

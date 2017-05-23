@@ -2,6 +2,8 @@ package com.example.android.popularmoviesstage1;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -40,19 +42,27 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
         mEmptyView = (TextView) findViewById(R.id.empty_view);
         mList = (RecyclerView) findViewById(R.id.recyclerview_movie);
 
-        GridLayoutManager layoutManager = new GridLayoutManager(this, 3, GridLayoutManager.VERTICAL, false);
-        mList.setLayoutManager(layoutManager);
-        mList.setHasFixedSize(true);
+        //check for internet connection
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        if(networkInfo != null && networkInfo.isConnected()) {
+            GridLayoutManager layoutManager = new GridLayoutManager(this, 3, GridLayoutManager.VERTICAL, false);
+            mList.setLayoutManager(layoutManager);
+            mList.setHasFixedSize(true);
 
-        mAdapter = new MovieAdapter(this);
-        mList.setAdapter(mAdapter);
+            mAdapter = new MovieAdapter(this);
+            mList.setAdapter(mAdapter);
 
-        Spinner spinner = (Spinner) findViewById(R.id.spinner);
-        spinner.setOnItemSelectedListener(new SpinnerSort());
+            Spinner spinner = (Spinner) findViewById(R.id.spinner);
+            spinner.setOnItemSelectedListener(new SpinnerSort());
 
-        spinnerData = spinner.getSelectedItem().toString();
+            spinnerData = spinner.getSelectedItem().toString();
 
-        makeMovieDbSearchQuery();
+            makeMovieDbSearchQuery();
+        } else {
+            mEmptyView.setText(R.string.no_internet_connection);
+        }
+
 
     }
 
