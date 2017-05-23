@@ -26,17 +26,6 @@
         android:prompt="@string/spinner_prompt"
         android:entries="@array/movie_sort_array"/>
 
-    <!--<?xml version="1.0" encoding="utf-8"?>-->
-    <!--<menu xmlns:android="http://schemas.android.com/apk/res/android"-->
-    <!--xmlns:app="http://schemas.android.com/apk/res-auto">-->
-    <!--<item-->
-    <!--android:id="@+id/spinner"-->
-    <!--android:title="@string/spinner_prompt"-->
-    <!--app:actionViewClass="android.widget.Spinner"-->
-    <!--android:background="@color/colorPrimary"-->
-    <!--app:showAsAction="always" />-->
-    <!--</menu>-->
-
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerview_movie"
         android:layout_width="match_parent"
