@@ -1,5 +1,6 @@
 package com.example.android.popularmoviesstage1;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -9,6 +10,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.android.popularmoviesstage1.utilities.MovieDbJsonUtils;
@@ -27,6 +29,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
     MovieAdapter mAdapter;
     RecyclerView mList;
     ArrayList<MovieClass> jsonMovieDbData;
+    String spinnerData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,13 +47,35 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
         mAdapter = new MovieAdapter(this);
         mList.setAdapter(mAdapter);
 
+        Spinner spinner = (Spinner) findViewById(R.id.spinner);
+        spinner.setOnItemSelectedListener(new SpinnerActivity());
+        Intent intent = new Intent(MainActivity.this,SpinnerActivity.class);
+        startActivityForResult(intent,1);
+
+        spinnerData = spinner.getSelectedItem().toString();
 
         makeMovieDbSearchQuery();
 
     }
 
-    private void makeMovieDbSearchQuery() {
-        URL movieDbSearchUrl = NetworkUtils.buildUrl();
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 1) {
+            if (resultCode == Activity.RESULT_OK) {
+                spinnerData = data.getStringExtra(Intent.EXTRA_TEXT);
+                makeMovieDbSearchQuery();
+            }
+            if (resultCode == Activity.RESULT_CANCELED) {
+
+            }
+        }
+    }
+
+
+    public void makeMovieDbSearchQuery() {
+        URL movieDbSearchUrl = NetworkUtils.buildUrl(spinnerData);
         new MovieDbQuery().execute(movieDbSearchUrl);
     }
 
@@ -104,5 +129,33 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
     public void showErrorMessage(){
         mErrorMessage.setVisibility(View.VISIBLE);
     }
+
+
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        getMenuInflater().inflate(R.menu.spinner_menu, menu);
+//
+//        MenuItem item = menu.findItem(R.id.spinner);
+//        Spinner spinner = (Spinner)
+//        MenuItemCompat.getActionView(item);
+//
+//        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.movie_sort_array, android.R.layout.simple_spinner_item);
+//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//
+//        spinner.setAdapter(adapter);
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item)
+//    {
+//        switch (item.getItemId()) {
+//            case R.id.spinner:
+//                Toast.makeText(this, item.getItemId() + " HELLO?", Toast.LENGTH_SHORT).show();
+//                return true;
+//            default:
+//                return super.onOptionsItemSelected(item);
+//        }
+//    }
 }
 

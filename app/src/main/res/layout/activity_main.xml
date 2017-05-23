@@ -14,9 +14,28 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <Spinner
+        android:id="@+id/spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:prompt="@string/spinner_prompt"
+        android:entries="@array/movie_sort_array"/>
+
+    <!--<?xml version="1.0" encoding="utf-8"?>-->
+    <!--<menu xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--xmlns:app="http://schemas.android.com/apk/res-auto">-->
+    <!--<item-->
+    <!--android:id="@+id/spinner"-->
+    <!--android:title="@string/spinner_prompt"-->
+    <!--app:actionViewClass="android.widget.Spinner"-->
+    <!--android:background="@color/colorPrimary"-->
+    <!--app:showAsAction="always" />-->
+    <!--</menu>-->
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerview_movie"
@@ -37,4 +56,5 @@
         android:layout_gravity="center"
         android:visibility="invisible" />
 
-</FrameLayout>
+
+</LinearLayout>

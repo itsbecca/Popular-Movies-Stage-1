@@ -15,7 +15,6 @@ public class MovieDetail extends AppCompatActivity {
     TextView mMovieRating;
     TextView mReleaseDate;
     ImageView mPosterImg;
-    MovieClass currentMovie;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
