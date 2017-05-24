@@ -46,7 +46,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         if(networkInfo != null && networkInfo.isConnected()) {
-            GridLayoutManager layoutManager = new GridLayoutManager(this, 3, GridLayoutManager.VERTICAL, false);
+            final int columns = getResources().getInteger(R.integer.gallery_columns);
+            GridLayoutManager layoutManager = new GridLayoutManager(this, columns, GridLayoutManager.VERTICAL, false);
             mList.setLayoutManager(layoutManager);
             mList.setHasFixedSize(true);
 

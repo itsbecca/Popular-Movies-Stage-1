@@ -5,9 +5,10 @@
     android:layout_height="wrap_content">
 
     <ImageView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/movie_poster"
-        android:padding="@dimen/movie_poster_padding"/>
+        android:padding="@dimen/movie_poster_padding"
+        android:adjustViewBounds="true"/>
 
 </LinearLayout>
