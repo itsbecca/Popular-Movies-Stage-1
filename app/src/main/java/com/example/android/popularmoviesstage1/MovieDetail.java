@@ -16,6 +16,7 @@ public class MovieDetail extends AppCompatActivity {
     TextView mReleaseDate;
     ImageView mPosterImg;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,12 +33,15 @@ public class MovieDetail extends AppCompatActivity {
         if (intentThatStartedThisActivity.hasExtra(Intent.EXTRA_TEXT)) {
             MovieClass current_movie = getIntent().getParcelableExtra(Intent.EXTRA_TEXT);
             String mPosterUrl = current_movie.getPosterUrl();
+            String movieId = current_movie.getMovieId();
             mMovieTitle.setText(current_movie.getMovieTitle());
             mMovieSynopsis.setText(current_movie.getSynopsis());
             mMovieRating.setText(current_movie.getUserRating());
             mReleaseDate.setText(current_movie.getReleaseDate());
 
             Picasso.with(this).load(mPosterUrl).into(mPosterImg);
+
+
         }
     }
 }

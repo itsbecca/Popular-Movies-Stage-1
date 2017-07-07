@@ -9,13 +9,15 @@ public class MovieClass implements Parcelable {
     private String synopsis;
     private String releaseDate;
     private String userRating;
+    private String movieId;
 
-    public MovieClass(String movieTitle, String posterUrl, String synopsis, String releaseDate, String userRating) {
+    public MovieClass(String movieTitle, String posterUrl, String synopsis, String releaseDate, String userRating, String movieId) {
         this.movieTitle = movieTitle;
         this.posterUrl = posterUrl;
         this.synopsis = synopsis;
         this.releaseDate = releaseDate;
         this.userRating = userRating;
+        this.movieId = movieId;
     }
 
 
@@ -25,6 +27,7 @@ public class MovieClass implements Parcelable {
         synopsis = in.readString();
         releaseDate = in.readString();
         userRating = in.readString();
+        movieId = in.readString();
     }
 
     public static final Creator<MovieClass> CREATOR = new Creator<MovieClass>() {
@@ -57,6 +60,8 @@ public class MovieClass implements Parcelable {
         return userRating;
     }
 
+    public String getMovieId() { return movieId; }
+
     @Override
     public int describeContents() {
         return 0;
@@ -69,5 +74,6 @@ public class MovieClass implements Parcelable {
         dest.writeString(synopsis);
         dest.writeString(releaseDate);
         dest.writeString(userRating);
+        dest.writeString(movieId);
     }
 }
