@@ -6,6 +6,7 @@
     tools:context="com.example.android.popularmoviesstage1.MovieDetail">
 
     <LinearLayout
+        android:id="@+id/mainLinearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
@@ -54,6 +55,8 @@
             android:id="@+id/detail_movie_synopsis"
             android:padding="@dimen/padding_small"
             android:background="@color/colorAccentLight"/>
+
+
 
     </LinearLayout>
 </ScrollView>

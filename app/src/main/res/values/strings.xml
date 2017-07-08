@@ -14,4 +14,6 @@
         <item>Top Rated</item>
     </string-array>
     <string name="title_activity_settings">Settings</string>
+
+    <string name="trailer_views">trailer_num_</string>
 </resources>

@@ -13,12 +13,14 @@ import java.util.Scanner;
 
 public class NetworkUtils {
     final static String BASE_URL = "http://api.themoviedb.org/3/movie/";
-    final static String PARAM_QUERY = "api_key";
-    final static String apiKey = BuildConfig.MOVIE_DB_API_KEY;
+    final static String API_QUERY = "api_key";
+    final static String API_KEY = BuildConfig.MOVIE_DB_API_KEY;
     final static String SORT_POPULAR_SELECTOR = "Most Popular";
     final static String SORT_POPULAR_ID = "popular";
     final static String SORT_RATED_SELECTOR = "Top Rated";
     final static String SORT_RATED_ID = "top_rated";
+    final static String APPEND_QUERY_VIDEO = "append_to_response";
+    final static String APPEND_ID_VIDEO = "videos";
 
 
     public static URL buildUrl(String sortBy){
@@ -29,17 +31,31 @@ public class NetworkUtils {
         }
         Uri builtUri = Uri.parse(BASE_URL).buildUpon()
                 .appendPath(sortBy)
-                .appendQueryParameter(PARAM_QUERY, apiKey)
+                .appendQueryParameter(API_QUERY, API_KEY)
                 .build();
 
+        return uriToUrl(builtUri);
+    }
+
+    public static URL buildDetailUrl (String movieId) {
+        Uri builtUri = Uri.parse(BASE_URL).buildUpon()
+                .appendPath(movieId)
+                .appendQueryParameter(API_QUERY, API_KEY)
+                .appendQueryParameter(APPEND_QUERY_VIDEO, APPEND_ID_VIDEO)
+                .build();
+
+        return uriToUrl(builtUri);
+    }
+
+    public static URL uriToUrl(Uri uri) {
         URL url = null;
         try {
-            url = new URL(builtUri.toString());
+            url = new URL(uri.toString());
+            return url;
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-
-        return url;
+        return url; //TODO potential null pointer exception?
     }
 
     public static String getResponseFromHttpUrl(URL url) throws IOException {

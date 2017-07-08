@@ -3,7 +3,9 @@ package com.example.android.popularmoviesstage1.utilities;
 import android.content.Context;
 import android.net.Uri;
 
+import com.example.android.popularmoviesstage1.MainActivity;
 import com.example.android.popularmoviesstage1.MovieClass;
+import com.example.android.popularmoviesstage1.MovieDetail;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,34 +20,53 @@ public final class MovieDbJsonUtils {
     final static String BASE_URL = "http://image.tmdb.org/t/p";
     final static String IMG_SIZE = "w342";
 
-    public static ArrayList<MovieClass> getMovieDbStringsFromJson(Context context, String movieDbJsonString) throws JSONException {
+    public static ArrayList getMovieDbStringsFromJson(Context context, String movieDbJsonString) throws JSONException {
+        //constants for main MovieDb query
         final String MDB_MOVIE_TITLE = "original_title";
         final String MDB_POSTER_PATH = "poster_path";
         final String MDB_SYNOPSIS = "overview";
         final String MDB_RELEASE_DATE = "release_date";
         final String MDB_USER_RATING = "vote_average";
         final String MDB_MOVIE_ID = "id";
+        final String MDB_RESULTS = "results";
+
+        //constants for movie detail query
+        final String MDB_VIDEOS = "videos";
+        final String MDB_VIDEO_ID = "key";
 
         JSONObject reader = new JSONObject(movieDbJsonString);
-        JSONArray results = reader.getJSONArray("results");
 
         ArrayList<MovieClass> movies = new ArrayList<>();
+        ArrayList videoList = new ArrayList();
 
-        for (int i = 0; i < results.length(); i++){
-            JSONObject movie = results.getJSONObject(i);
-            String movieTitle = movie.getString(MDB_MOVIE_TITLE);
-            String posterPath = movie.getString(MDB_POSTER_PATH);
-            String synopsis = movie.getString(MDB_SYNOPSIS);
-            String releaseDate = movie.getString(MDB_RELEASE_DATE);
-            String userRating = movie.getString(MDB_USER_RATING);
-            String movieId = movie.getString(MDB_MOVIE_ID);
+        if (context instanceof MainActivity) {
+            JSONArray results = reader.getJSONArray(MDB_RESULTS);
+            for (int i = 0; i < results.length(); i++) {
+                JSONObject movie = results.getJSONObject(i);
+                String movieTitle = movie.getString(MDB_MOVIE_TITLE);
+                String posterPath = movie.getString(MDB_POSTER_PATH);
+                String synopsis = movie.getString(MDB_SYNOPSIS);
+                String releaseDate = movie.getString(MDB_RELEASE_DATE);
+                String userRating = movie.getString(MDB_USER_RATING);
+                String movieId = movie.getString(MDB_MOVIE_ID);
 
-            String posterUrl = buildPosterUrl(posterPath);
+                String posterUrl = buildPosterUrl(posterPath);
 
-            movies.add(new MovieClass(movieTitle,posterUrl,synopsis,releaseDate,userRating,movieId));
+                movies.add(new MovieClass(movieTitle, posterUrl, synopsis, releaseDate, userRating, movieId));
+            }
+        } else { //TODO can I specify MovieDetail here?
+            //Getting trailer information
+            JSONObject videos = reader.getJSONObject(MDB_VIDEOS);
+            JSONArray results = videos.getJSONArray(MDB_RESULTS);
+            for (int i = 0; i < results.length(); i++) {
+                JSONObject video = results.getJSONObject(i);
+                String videoId = video.getString(MDB_VIDEO_ID); //unique id for the YouTube clip
+                videoList.add(videoId);
+            }
+            return videoList;
         }
 
-        return movies;
+        return movies; //TODO Is this return structure okay?
 
     }
 
