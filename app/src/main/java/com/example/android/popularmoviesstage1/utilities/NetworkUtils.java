@@ -20,7 +20,7 @@ public class NetworkUtils {
     final static String SORT_RATED_SELECTOR = "Top Rated";
     final static String SORT_RATED_ID = "top_rated";
     final static String APPEND_QUERY_VIDEO = "append_to_response";
-    final static String APPEND_ID_VIDEO = "videos";
+    final static String APPEND_ID_VIDEO = "videos,reviews";
 
 
     public static URL buildUrl(String sortBy){

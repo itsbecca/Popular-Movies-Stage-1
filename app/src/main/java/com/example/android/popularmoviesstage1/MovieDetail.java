@@ -84,7 +84,7 @@ public class MovieDetail extends AppCompatActivity implements View.OnClickListen
     }
 
 
-    public class MovieDbQuery extends AsyncTask<URL, Void, ArrayList<String>> {
+    public class MovieDbQuery extends AsyncTask<URL, Void, ArrayList<ArrayList<String>>> {
 
         @Override
         protected void onPreExecute() {
@@ -92,7 +92,7 @@ public class MovieDetail extends AppCompatActivity implements View.OnClickListen
         }
 
         @Override
-        protected ArrayList<String> doInBackground(URL... params) {
+        protected ArrayList<ArrayList<String>> doInBackground(URL... params) {
             URL searchUrl = params[0];
 
             try {
@@ -109,7 +109,7 @@ public class MovieDetail extends AppCompatActivity implements View.OnClickListen
         }
 
         @Override
-        protected void onPostExecute(ArrayList<String> movieDbSearchResults) {
+        protected void onPostExecute(ArrayList<ArrayList<String>> movieDbSearchResults) {
 //            mProgressBar.setVisibility(View.INVISIBLE);
 //
 //            if (movieDbSearchResults != null) {
@@ -119,16 +119,43 @@ public class MovieDetail extends AppCompatActivity implements View.OnClickListen
 //                mEmptyView.setText(R.string.no_results);
 //            }
             if (movieDbSearchResults != null) {
-                //Creates views for the first three trailers
-                for (int i = 0; i < movieDbSearchResults.size() && i < 3; i++) {
-                    String movieId = movieDbSearchResults.get(i);
+                //separate results into the two relevant array lists
+                ArrayList<String> trailerResults = movieDbSearchResults.get(0);
+                ArrayList<String> reviewResults = movieDbSearchResults.get(1);
 
-                    TextView trailerText = new TextView(MovieDetail.this);
-                    mMainLinearLayout.addView(trailerText);
-                    trailerText.setTag(movieId);
-                    trailerText.setText("Click to play trailer " + (i+1));
-                    trailerText.setId(R.string.trailer_views + i); //TODO do they need an id?
-                    trailerText.setOnClickListener(MovieDetail.this);
+                for (int i = 0; i < movieDbSearchResults.size(); i++) {
+                    //Creates views for the first three trailers
+                    if(i==0) {
+                        for (int f = 0; f < trailerResults.size(); f = f+2) {
+                            String videoId = trailerResults.get(f);
+                            String videoTitle = trailerResults.get(f+1);
+
+                            TextView trailerTextView = new TextView(MovieDetail.this);
+                            mMainLinearLayout.addView(trailerTextView);
+                            trailerTextView.setTag(videoId);
+                            trailerTextView.setText("Click to play " + videoTitle);
+                            //trailerTextView.setId(R.string.trailer_views + f); //TODO do they need an id?
+                            trailerTextView.setOnClickListener(MovieDetail.this);
+                        }
+                    }
+
+                    //Create views for the reviews
+                    if(i==1) {
+                        for (int g = 0; g < reviewResults.size(); g = g+3) {
+                            String reviewerName = reviewResults.get(g);
+                            String reviewText = reviewResults.get(g+1);
+                            String reviewUrl = reviewResults.get(g+2);
+
+                            TextView reviewTextView = new TextView(MovieDetail.this);
+                            mMainLinearLayout.addView(reviewTextView);
+                            reviewTextView.setTag(reviewUrl);
+                            reviewTextView.setText("Reviewer: " + reviewerName +
+                                    "\n\n" + reviewText);
+                            reviewTextView.setOnClickListener(MovieDetail.this); //TODO adjust onClick method if I would like to use this
+                        }
+
+                    }
+
                 }
 
                 //Create views for the first 3 reviews

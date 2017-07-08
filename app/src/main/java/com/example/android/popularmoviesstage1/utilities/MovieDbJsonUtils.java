@@ -31,14 +31,25 @@ public final class MovieDbJsonUtils {
         final String MDB_RESULTS = "results";
 
         //constants for movie detail query
-        final String MDB_VIDEOS = "videos";
-        final String MDB_VIDEO_ID = "key";
+        final String MOVIE_TRAILERS = "videos";
+        final String MOVIE_TRAILER_ID = "key";
+        final String MOVIE_TRAILER_NAME = "name";
+        final String MOVIE_REVIEWS = "reviews";
+        final String MOVIE_REVIEWER_NAME = "author";
+        final String MOVIE_REVIEW_TEXT = "content";
+        final String MOVIE_REVIEW_URL = "url"; //TODO Remove here and below if end up not using/needing
 
         JSONObject reader = new JSONObject(movieDbJsonString);
 
+        //For Movie details from MainActivity Query
         ArrayList<MovieClass> movies = new ArrayList<>();
-        ArrayList videoList = new ArrayList();
 
+        //For extra details from movie queried in MovieDetail
+        ArrayList<ArrayList<String>> extraMovieDetails = new ArrayList<>();
+        ArrayList<String> movieTrailers = new ArrayList<>();
+        ArrayList<String> movieReviews = new ArrayList<>();
+
+        //if getting basic movie info for main page
         if (context instanceof MainActivity) {
             JSONArray results = reader.getJSONArray(MDB_RESULTS);
             for (int i = 0; i < results.length(); i++) {
@@ -54,16 +65,44 @@ public final class MovieDbJsonUtils {
 
                 movies.add(new MovieClass(movieTitle, posterUrl, synopsis, releaseDate, userRating, movieId));
             }
-        } else { //TODO can I specify MovieDetail here?
+        } else { // if getting trailers and reviews for detail page //TODO can I specify MovieDetail here?
             //Getting trailer information
-            JSONObject videos = reader.getJSONObject(MDB_VIDEOS);
-            JSONArray results = videos.getJSONArray(MDB_RESULTS);
-            for (int i = 0; i < results.length(); i++) {
-                JSONObject video = results.getJSONObject(i);
-                String videoId = video.getString(MDB_VIDEO_ID); //unique id for the YouTube clip
-                videoList.add(videoId);
+            JSONObject trailers = reader.getJSONObject(MOVIE_TRAILERS);
+            JSONArray trailerResults = trailers.getJSONArray(MDB_RESULTS);
+
+            int itemCounter = 0; //Counter keeps Arraylist information in the proper order
+            //Show the first 3 trailers only
+            for (int i = 0; i < trailerResults.length() && i < 3; i++) {
+                JSONObject video = trailerResults.getJSONObject(i);
+                String videoId = video.getString(MOVIE_TRAILER_ID); //unique id for the YouTube clip
+                String videoName = video.getString(MOVIE_TRAILER_NAME);
+
+                movieTrailers.add(itemCounter, videoId);
+                movieTrailers.add(itemCounter+1, videoName);
+                itemCounter = itemCounter + 2;
+
+
             }
-            return videoList;
+            extraMovieDetails.add(movieTrailers);
+
+            //Getting review information
+            JSONObject reviews = reader.getJSONObject(MOVIE_REVIEWS);
+            JSONArray reviewResults = reviews.getJSONArray(MDB_RESULTS);
+
+            itemCounter = 0;
+            for (int i = 0; i < reviewResults.length(); i++) {
+                JSONObject review = reviewResults.getJSONObject(i);
+                String reviewerName = review.getString(MOVIE_REVIEWER_NAME);
+                String reviewText = review.getString(MOVIE_REVIEW_TEXT);
+                String reviewUrl = review.getString(MOVIE_REVIEW_URL);
+                movieReviews.add(itemCounter, reviewerName);
+                movieReviews.add(itemCounter + 1, reviewText);
+                movieReviews.add(itemCounter + 2, reviewUrl);
+                itemCounter = itemCounter + 3;
+            }
+            extraMovieDetails.add(movieReviews);
+
+            return extraMovieDetails;
         }
 
         return movies; //TODO Is this return structure okay?
