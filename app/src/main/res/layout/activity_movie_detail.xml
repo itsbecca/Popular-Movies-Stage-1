@@ -46,6 +46,13 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/detail_movie_rating"/>
 
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/add_favorites_button"
+                android:background="@color/colorAccent"
+                android:text="@string/favorites_btn_txt"/>
+
         </LinearLayout>
     </LinearLayout>
 
