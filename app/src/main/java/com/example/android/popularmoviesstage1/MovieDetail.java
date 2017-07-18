@@ -1,15 +1,19 @@
 package com.example.android.popularmoviesstage1;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.android.popularmoviesstage1.data.FavoritesContract;
 import com.example.android.popularmoviesstage1.utilities.MovieDbJsonUtils;
 import com.example.android.popularmoviesstage1.utilities.NetworkUtils;
 import com.squareup.picasso.Picasso;
@@ -20,6 +24,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 
+import static com.example.android.popularmoviesstage1.data.FavoritesContract.*;
+
 public class MovieDetail extends AppCompatActivity implements View.OnClickListener{
 
     //Views that will be filled by EXTRA sent by Intent
@@ -28,6 +34,14 @@ public class MovieDetail extends AppCompatActivity implements View.OnClickListen
     TextView mMovieRating;
     TextView mReleaseDate;
     ImageView mPosterImg;
+
+    //For holding movie info pulled from intent not used in a view
+    String mPosterUrl;
+    String mMovieId;
+
+    Button mFavoritesBtn;
+    // to identify btn click
+    String mFavoritesBtnTag = "add_favorites";
 
     //LinearLayout that will hold views created programmatically to hold trailers and reviews if available for movie
     LinearLayout mMainLinearLayout;
@@ -50,12 +64,16 @@ public class MovieDetail extends AppCompatActivity implements View.OnClickListen
         mPosterImg = (ImageView) findViewById(R.id.detail_movie_poster);
         mMainLinearLayout = (LinearLayout) findViewById(R.id.mainLinearLayout);
 
+        mFavoritesBtn = (Button) findViewById(R.id.add_favorites_button);
+        mFavoritesBtn.setTag(mFavoritesBtnTag);
+        mFavoritesBtn.setOnClickListener(MovieDetail.this);
+
         Intent intentThatStartedThisActivity = getIntent();
 
         if (intentThatStartedThisActivity.hasExtra(Intent.EXTRA_TEXT)) {
             MovieClass current_movie = getIntent().getParcelableExtra(Intent.EXTRA_TEXT);
-            String mPosterUrl = current_movie.getPosterUrl();
-            String mMovieId = current_movie.getMovieId();
+            mPosterUrl = current_movie.getPosterUrl();
+            mMovieId = current_movie.getMovieId();
             mMovieTitle.setText(current_movie.getMovieTitle());
             mMovieSynopsis.setText(current_movie.getSynopsis());
             mMovieRating.setText(current_movie.getUserRating());
@@ -72,18 +90,26 @@ public class MovieDetail extends AppCompatActivity implements View.OnClickListen
 
     @Override
     public void onClick(View view) {
-        //retrieve videoId from view and use it to build video Uri
-        String videoId = (String) view.getTag();
-        Uri trailerUri = buildTrailerUrl(videoId);
+        String viewTag = (String) view.getTag();
 
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(trailerUri);
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            startActivity(intent);
+        if (viewTag.equals(mFavoritesBtnTag)) {
+            addMovieToFavorites();
+
+        } else if (viewTag != null){
+            //retrieve videoId from view and use it to build video Uri
+            String videoId = viewTag;
+            Uri trailerUri = buildTrailerUrl(videoId);
+
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(trailerUri);
+            if (intent.resolveActivity(getPackageManager()) != null) {
+                startActivity(intent);
+            }
         }
     }
 
-
+    //New API call with current movie idto get trailers and reviews that are not avl in MainActivity
+    //API call
     public class MovieDbQuery extends AsyncTask<URL, Void, ArrayList<ArrayList<String>>> {
 
         @Override
@@ -119,7 +145,7 @@ public class MovieDetail extends AppCompatActivity implements View.OnClickListen
 //                mEmptyView.setText(R.string.no_results);
 //            }
             if (movieDbSearchResults != null) {
-                //separate results into the two relevant array lists
+                //separate results into the two relevant array lists: Trailers and Reviews
                 ArrayList<String> trailerResults = movieDbSearchResults.get(0);
                 ArrayList<String> reviewResults = movieDbSearchResults.get(1);
 
@@ -157,17 +183,35 @@ public class MovieDetail extends AppCompatActivity implements View.OnClickListen
                     }
 
                 }
-
-                //Create views for the first 3 reviews
             }
         }
 
     }
+
     public Uri buildTrailerUrl(String videoId) {
         Uri builtUri = Uri.parse(YOUTUBE_BASE_URL).buildUpon()
                 .appendQueryParameter(YOUTUBE_QUERY, videoId)
                 .build();
 
         return builtUri;
+    }
+
+    public void addMovieToFavorites() {
+        //Pull information from Views to store in ContentValues
+        ContentValues movieDetails = new ContentValues();
+        movieDetails.put(ContractEntry.COLUMN_MOVIE_TITLE,String.valueOf(mMovieTitle.getText()));
+        movieDetails.put(ContractEntry.COLUMN_MOVIE_ID,mMovieId);
+        movieDetails.put(ContractEntry.COLUMN_MOVIE_RATING,String.valueOf(mMovieRating.getText()));
+        movieDetails.put(ContractEntry.COLUMN_MOVIE_RELEASE_DATE,String.valueOf(mReleaseDate.getText()));
+        movieDetails.put(ContractEntry.COLUMN_MOVIE_SYNOPSIS,String.valueOf(mMovieSynopsis.getText()));
+        movieDetails.put(ContractEntry.COLUMN_MOVIE_POSTER_ID,mPosterUrl);
+
+        Uri uri = getContentResolver().insert(ContractEntry.CONTENT_URI,movieDetails);
+
+        if(uri != null) {
+            Toast.makeText(getBaseContext(),
+                    String.valueOf(mMovieTitle.getText()) + " saved to favorites", //TODO I'm a string, remove me
+                    Toast.LENGTH_LONG).show();
+        }
     }
 }
