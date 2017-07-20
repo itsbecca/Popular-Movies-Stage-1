@@ -10,7 +10,7 @@ import static com.example.android.popularmoviesstage1.data.FavoritesContract.*;
 public class FavoritesDbHelper extends SQLiteOpenHelper{
 
     static final String DATABASE_NAME = "favorites.db";
-    static final int DATABASE_VERSION = 1;
+    static final int DATABASE_VERSION = 2;
 
     public FavoritesDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -19,22 +19,22 @@ public class FavoritesDbHelper extends SQLiteOpenHelper{
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         final String SQL_CREATE_FAVORITES_TABLE =
-            "CREATE TABLE " + ContractEntry.TABLE_NAME + " (" +
-
-                ContractEntry._ID                           + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                ContractEntry.COLUMN_MOVIE_TITLE            + " TEXT NOT NULL," +
-                ContractEntry.COLUMN_MOVIE_ID               + " TEXT NOT NULL," +
-                ContractEntry.COLUMN_MOVIE_RATING           + " TEXT NOT NULL," +
-                ContractEntry.COLUMN_MOVIE_RELEASE_DATE     + " TEXT NOT NULL," +
-                ContractEntry.COLUMN_MOVIE_SYNOPSIS         + " TEXT NOT NULL," +
-                ContractEntry.COLUMN_MOVIE_POSTER_ID        + " TEXT NOT NULL" +
-                " UNIQUE (" + ContractEntry.COLUMN_MOVIE_ID + ") ON CONFLICT REPLACE);";
+            "CREATE TABLE " + FavoritesEntry.TABLE_NAME + " (" +
+                FavoritesEntry._ID                          + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                FavoritesEntry.COLUMN_MOVIE_TITLE           + " TEXT NOT NULL," +
+                FavoritesEntry.COLUMN_MOVIE_ID              + " TEXT NOT NULL," +
+                FavoritesEntry.COLUMN_MOVIE_RATING          + " TEXT NOT NULL," +
+                FavoritesEntry.COLUMN_MOVIE_RELEASE_DATE    + " TEXT NOT NULL," +
+                FavoritesEntry.COLUMN_MOVIE_SYNOPSIS        + " TEXT NOT NULL," +
+                FavoritesEntry.COLUMN_MOVIE_POSTER_LOC      + " TEXT NOT NULL,"  +
+                " UNIQUE (" + FavoritesEntry.COLUMN_MOVIE_ID + ") ON CONFLICT REPLACE);";
         sqLiteDatabase.execSQL(SQL_CREATE_FAVORITES_TABLE);
     }
 
 
-    @Override //No upgrade currently as db is on ver 1
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
+    @Override
+    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + FavoritesEntry.TABLE_NAME);
+        onCreate(sqLiteDatabase);
     }
 }

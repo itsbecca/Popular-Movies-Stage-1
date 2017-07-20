@@ -41,7 +41,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
     @Override
     public void onBindViewHolder(MovieAdapterViewHolder movieAdapterViewHolder, int position) {
         String currentMovieInfo = String.valueOf(mMovieInfo.get(position).getPosterUrl());
-        Picasso.with(view.getContext()).load(currentMovieInfo).into(movieAdapterViewHolder.mMoviewPosterView);
+        Picasso.with(view.getContext()).load(currentMovieInfo).into(movieAdapterViewHolder.mMoviePosterView);
     }
 
     @Override
@@ -54,18 +54,17 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
     }
 
     public class MovieAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        public final ImageView mMoviewPosterView;
+        public final ImageView mMoviePosterView;
 
         public MovieAdapterViewHolder(View view) {
             super(view);
-            mMoviewPosterView = (ImageView) view.findViewById(R.id.movie_poster);
+            mMoviePosterView = (ImageView) view.findViewById(R.id.movie_poster);
             view.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View view) {
             int clickPosition = getAdapterPosition();
-            //MovieClass clickedMovie = mMovieInfo.get(clickPosition);
             mOnClickListener.onListItemClick(clickPosition);
         }
     }

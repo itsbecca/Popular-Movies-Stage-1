@@ -1,11 +1,19 @@
 package com.example.android.popularmoviesstage1;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -13,14 +21,19 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.android.popularmoviesstage1.data.FavoritesContract;
 import com.example.android.popularmoviesstage1.utilities.MovieDbJsonUtils;
 import com.example.android.popularmoviesstage1.utilities.NetworkUtils;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import org.json.JSONException;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -38,6 +51,7 @@ public class MovieDetail extends AppCompatActivity implements View.OnClickListen
     //For holding movie info pulled from intent not used in a view
     String mPosterUrl;
     String mMovieId;
+    String mPosterPath;
 
     Button mFavoritesBtn;
     // to identify btn click
@@ -140,7 +154,7 @@ public class MovieDetail extends AppCompatActivity implements View.OnClickListen
 //
 //            if (movieDbSearchResults != null) {
 //                mEmptyView.setVisibility(View.INVISIBLE);
-//                mAdapter.setMovieInfo(movieDbSearchResults);
+//                mMovieAdapter.setMovieInfo(movieDbSearchResults);
 //            } else {
 //                mEmptyView.setText(R.string.no_results);
 //            }
@@ -199,19 +213,82 @@ public class MovieDetail extends AppCompatActivity implements View.OnClickListen
     public void addMovieToFavorites() {
         //Pull information from Views to store in ContentValues
         ContentValues movieDetails = new ContentValues();
-        movieDetails.put(ContractEntry.COLUMN_MOVIE_TITLE,String.valueOf(mMovieTitle.getText()));
-        movieDetails.put(ContractEntry.COLUMN_MOVIE_ID,mMovieId);
-        movieDetails.put(ContractEntry.COLUMN_MOVIE_RATING,String.valueOf(mMovieRating.getText()));
-        movieDetails.put(ContractEntry.COLUMN_MOVIE_RELEASE_DATE,String.valueOf(mReleaseDate.getText()));
-        movieDetails.put(ContractEntry.COLUMN_MOVIE_SYNOPSIS,String.valueOf(mMovieSynopsis.getText()));
-        movieDetails.put(ContractEntry.COLUMN_MOVIE_POSTER_ID,mPosterUrl);
+        movieDetails.put(FavoritesEntry.COLUMN_MOVIE_TITLE,String.valueOf(mMovieTitle.getText()));
+        movieDetails.put(FavoritesEntry.COLUMN_MOVIE_ID,mMovieId);
+        movieDetails.put(FavoritesEntry.COLUMN_MOVIE_RATING,String.valueOf(mMovieRating.getText()));
+        movieDetails.put(FavoritesEntry.COLUMN_MOVIE_RELEASE_DATE,String.valueOf(mReleaseDate.getText()));
+        movieDetails.put(FavoritesEntry.COLUMN_MOVIE_SYNOPSIS,String.valueOf(mMovieSynopsis.getText()));
 
-        Uri uri = getContentResolver().insert(ContractEntry.CONTENT_URI,movieDetails);
+        Picasso.with(this).load(mPosterUrl).into(target);
+        movieDetails.put(FavoritesEntry.COLUMN_MOVIE_POSTER_LOC, mPosterPath);
+
+        Uri uri = getContentResolver().insert(FavoritesEntry.CONTENT_URI,movieDetails);
 
         if(uri != null) {
             Toast.makeText(getBaseContext(),
                     String.valueOf(mMovieTitle.getText()) + " saved to favorites", //TODO I'm a string, remove me
                     Toast.LENGTH_LONG).show();
         }
+    }
+
+    //saves poster into a given folder and saves path to be stored in db
+    private Target target = new Target() {
+        @Override
+        public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
+            final File file = new File(
+                    Environment.getExternalStorageDirectory().getPath()
+                            + "/moviePosters/" + mMovieId + ".jpg");
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        file.createNewFile();
+                        FileOutputStream ostream = new FileOutputStream(file);
+                        bitmap.compress(Bitmap.CompressFormat.JPEG,100,ostream);
+                        ostream.close();
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+            mPosterPath = String.valueOf(file);
+        }
+
+        @Override
+        public void onBitmapFailed(Drawable errorDrawable) {}
+
+        @Override
+        public void onPrepareLoad(Drawable placeHolderDrawable) {}
+    };
+
+    private String savePoster(String posterUrl) {
+
+
+
+
+
+
+
+
+
+
+//        File test = getCacheDir();
+//        Drawable drawable = mPosterImg.getDrawable();
+//        String uriString = "com.squareup.picasso.PicassoDrawable@151558c";
+//        InputStream inputStream = null;
+//        try {
+//            inputStream = getContentResolver().openInputStream(Uri.parse(uriString));
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        }
+//        drawable = Drawable.createFromStream(inputStream, uriString);
+//        Bitmap bitmap = BitmapFactory.decodeFile(uri);
+//        mPosterImg.setImageBitmap(BitmapFactory.decodeFile(uri));
+//        mPosterImg.invalidate();
+//        Picasso.with(this).load(uri).into(mPosterImg);
+//        mPosterImg.invalidate();
+        String other = "stuff";
+        return other;
     }
 }

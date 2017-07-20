@@ -15,7 +15,7 @@ public class FavoritesContract {
 
 
 
-    public static final class ContractEntry implements BaseColumns {
+    public static final class FavoritesEntry implements BaseColumns {
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
                 .appendPath(PATH_FAVORITES).build();
 
@@ -26,7 +26,7 @@ public class FavoritesContract {
         public static final String COLUMN_MOVIE_RATING = "rating";
         public static final String COLUMN_MOVIE_RELEASE_DATE = "date";
         public static final String COLUMN_MOVIE_SYNOPSIS = "synopsis";
-        public static final String COLUMN_MOVIE_POSTER_ID = "poster_id";
+        public static final String COLUMN_MOVIE_POSTER_LOC = "poster_string";
 
         //Access the row of a movie by movieId
         public static Uri buildUriWithMovieId(long id) {
