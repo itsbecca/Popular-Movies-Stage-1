@@ -110,41 +110,38 @@ public class MovieDetail extends AppCompatActivity implements
         mPosterImg = (ImageView) findViewById(R.id.detail_movie_poster);
         mMainLinearLayout = (LinearLayout) findViewById(R.id.mainLinearLayout);
 
-        mFavoritesBtn = (Button) findViewById(R.id.add_favorites_button); //TODO want this btn to change if movie is favorited already
+        mFavoritesBtn = (Button) findViewById(R.id.add_favorites_button); //TODO want this btn to change if movie is favorited
         mFavoritesBtn.setTag(mFavoritesBtnTag);
-        mFavoritesBtn.setOnClickListener(MovieDetail.this); //todo for favorites view this should be changed to delete
+        mFavoritesBtn.setOnClickListener(MovieDetail.this); //todo if movie is favorited, clicking should delete from favorites db
 
         mFavAdapter = new FavoritesAdapter(this);
 
-        getSupportLoaderManager().initLoader(ID_FAVORITES_LOADER, null, this);
-
-        Intent intentThatStartedThisActivity = getIntent();
+        Bundle extras = getIntent().getExtras();
+        int favoritesOrNot = extras.getInt("favoritesOrNot");
 
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo(); //TODO Favorites may be loaded while online too. FIX
-        if(networkInfo != null && networkInfo.isConnected()) {
-            if (intentThatStartedThisActivity.hasExtra(Intent.EXTRA_TEXT)) {
-                    MovieClass current_movie = getIntent().getParcelableExtra(Intent.EXTRA_TEXT);
-                    mPosterUrl = current_movie.getPosterUrl();
-                    mMovieId = current_movie.getMovieId();
-                    mMovieTitle.setText(current_movie.getMovieTitle());
-                    mMovieSynopsis.setText(current_movie.getSynopsis());
-                    mMovieRating.setText(current_movie.getUserRating());
-                    mReleaseDate.setText(current_movie.getReleaseDate());
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
 
-                    Picasso.with(this).load(mPosterUrl).into(mPosterImg);
+        if (favoritesOrNot == MainActivity.SPINNER_POPULAR_SORT || favoritesOrNot == MainActivity.SPINNER_RATED_SORT) {
+            if(networkInfo != null && networkInfo.isConnected()) {
+                MovieClass current_movie = getIntent().getParcelableExtra(Intent.EXTRA_TEXT);
+                mPosterUrl = current_movie.getPosterUrl();
+                mMovieId = current_movie.getMovieId();
+                mMovieTitle.setText(current_movie.getMovieTitle());
+                mMovieSynopsis.setText(current_movie.getSynopsis());
+                mMovieRating.setText(current_movie.getUserRating());
+                mReleaseDate.setText(current_movie.getReleaseDate());
 
-                    URL movieDbSearchUrl = NetworkUtils.buildDetailUrl(mMovieId);
-                    new MovieDbQuery().execute(movieDbSearchUrl);
-                    }
-            } else {
-                //mEmptyView.setText(R.string.no_internet_connection); //TODO EmptyView, should be avl in network connect too?
-                // TODO Can I get movieId this way?
-                getSupportLoaderManager().initLoader(ID_FAVORITES_LOADER, null, this);
+                Picasso.with(this).load(mPosterUrl).into(mPosterImg);
+
+                URL movieDbSearchUrl = NetworkUtils.buildDetailUrl(mMovieId);
+                new MovieDbQuery().execute(movieDbSearchUrl);
+            } else return; //mEmptyView.setText(R.string.no_internet_connection); //TODO Setup EmptyView in xml
+        } else if (favoritesOrNot == MainActivity.SPINNER_FAVORITES_SORT) {
+            // TODO Can I get movieId this way?
+            getSupportLoaderManager().initLoader(ID_FAVORITES_LOADER, null, this);
+            //TODO Do I have any network based decisions to make for Favorites view?//
             }
-
-
-
     }
 
     @Override
@@ -273,27 +270,40 @@ public class MovieDetail extends AppCompatActivity implements
     }
 
     //saves poster into a given folder and saves path to be stored in db
-    private Target target = new Target() {
+    private Target target = new Target() { //TODO Can this be moved out to a util doc?
         @Override
         public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
             final File file = new File(
-                    Environment.getExternalStorageDirectory().getPath()
+                    Environment.getDataDirectory().getAbsolutePath()
                             + "/moviePosters/" + mMovieId + ".jpg");
+            mPosterPath = String.valueOf(file);
+
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
+                        //FileOutputStream outputStream = openFileOutput(mPosterPath, Context.MODE_PRIVATE);
                         file.createNewFile();
-                        FileOutputStream ostream = new FileOutputStream(file);
-                        bitmap.compress(Bitmap.CompressFormat.JPEG,100,ostream);
-                        ostream.close();
+                        FileOutputStream outputStream = new FileOutputStream(file);
+                        bitmap.compress(Bitmap.CompressFormat.JPEG,100,outputStream);
+                        outputStream.close();
                     }
                     catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
             }).start();
-            mPosterPath = String.valueOf(file);
+//            if (bitmap == null) { //TODO Testing only, delete once image loading properly
+//                System.out.println("Ain't no pic here");
+//            } else {
+//                String test = "AH!";
+//            }
+//
+//            if(file.exists()) {
+//                System.out.println("file is already there");
+//            }else{
+//                System.out.println("Not find file ");
+//            }
         }
 
         @Override

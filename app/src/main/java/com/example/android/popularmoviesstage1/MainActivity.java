@@ -47,9 +47,9 @@ public class MainActivity extends AppCompatActivity implements
     //To identify which spinner menu choice is selected currently
     String spinnerData;
     String[] spinnerArray;
-    private static final int SPINNER_POPULAR_SORT = 0;
-    private static final int SPINNER_RATED_SORT = 1;
-    private static final int SPINNER_FAVORITES_SORT = 2;
+    public static final int SPINNER_POPULAR_SORT = 0;
+    public static final int SPINNER_RATED_SORT = 1;
+    public static final int SPINNER_FAVORITES_SORT = 2;
 
 
     LoaderManager.LoaderCallbacks mLoaderCallbacks = this;
@@ -109,8 +109,8 @@ public class MainActivity extends AppCompatActivity implements
                     spinnerData.equals(spinnerArray[SPINNER_RATED_SORT])) {
                 mList.setAdapter(mMovieAdapter); //TODO FIX: If I switch here from Favorites then EmptyView is invis
                 makeMovieDbSearchQuery();
-            } else if (spinnerData.equals((spinnerArray[SPINNER_FAVORITES_SORT]))) { //TODO is it okay not to have an else? (onlistclick too)
-                mEmptyView.setVisibility(View.INVISIBLE);
+            } else if (spinnerData.equals((spinnerArray[SPINNER_FAVORITES_SORT]))) {
+                mEmptyView.setVisibility(View.INVISIBLE); //TODO Should still show if Favorites has no items
                 mList.setAdapter(mFavAdapter);
                 getSupportLoaderManager().initLoader(ID_FAVORITES_LOADER, null, mLoaderCallbacks);
             }
@@ -130,9 +130,11 @@ public class MainActivity extends AppCompatActivity implements
                 spinnerData.equals(spinnerArray[SPINNER_RATED_SORT])) {
             Intent intent = new Intent(context, destinationActivity);
             intent.putExtra(Intent.EXTRA_TEXT, jsonMovieDbData.get(clickedItemIndex));
+            intent.putExtra("favoritesOrNot",SPINNER_POPULAR_SORT); //TODO I'm a string, banish me
             startActivity(intent);
         } else if (spinnerData.equals((spinnerArray[SPINNER_FAVORITES_SORT]))){
             Intent intent = new Intent(context, destinationActivity);
+            intent.putExtra("favoritesOrNot",SPINNER_FAVORITES_SORT);
             startActivity(intent);
         }
 

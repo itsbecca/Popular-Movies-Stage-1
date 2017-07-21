@@ -17,13 +17,14 @@
         android:orientation="horizontal">
 
     <!--
-    Change detail_movie_poster's height back to wrap_content once image testing is finished
+    Change detail_movie_poster's height and width back to wrap_content, and remove background
+    once image testing is finished
     -->
         <ImageView
             android:contentDescription="@string/movie_poster"
-            android:layout_width="wrap_content"
+            android:layout_width="200dp"
             android:layout_height="300dp"
-            android:id="@+id/detail_movie_poster"/>
+            android:id="@+id/detail_movie_poster" />
 
         <LinearLayout
             android:layout_width="match_parent"

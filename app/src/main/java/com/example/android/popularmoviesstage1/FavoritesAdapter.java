@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.example.android.popularmoviesstage1.data.FavoritesContract;
 import com.squareup.picasso.Picasso;
@@ -48,16 +49,17 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
         mCursor.moveToPosition(position);
         String imgPath = mCursor.getString(mCursor
                 .getColumnIndex(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_POSTER_LOC));
-        String test = mCursor.getString(mCursor
-                .getColumnIndex(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_ID));
-        String test2 = mCursor.getString(mCursor
-                .getColumnIndex(FavoritesContract.FavoritesEntry._ID));
-        String test3 = mCursor.getString(mCursor
-                .getColumnIndex(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_TITLE));
-        String test4 = mCursor.getString(mCursor
-                .getColumnIndex(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_RELEASE_DATE));
-        Picasso.with(mContext).load(R.mipmap.ic_launcher_round).into(favoritesAdapterViewHolder.mMoviePosterView);
+        File file = new File(imgPath);
+
+        Picasso.with(mContext).load(R.mipmap.ic_launcher_round).into(favoritesAdapterViewHolder.mMoviePosterView); //TODO For testing only, remove once image loading works
+
         //Picasso.with(mContext).load(new File(imgPath)).into(favoritesAdapterViewHolder.mMoviePosterView);
+        if(file.exists()) {
+            System.out.println("file is already there");
+        }else{
+            System.out.println("Not find file ");
+        }
+        //storage/emulated/0/moviePosters/324852.jpg
     }
 
     @Override
