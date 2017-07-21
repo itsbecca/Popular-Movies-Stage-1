@@ -274,8 +274,8 @@ public class MovieDetail extends AppCompatActivity implements
         @Override
         public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
             final File file = new File(
-                    Environment.getDataDirectory().getAbsolutePath()
-                            + "/moviePosters/" + mMovieId + ".jpg");
+                    Environment.getExternalStorageDirectory() + "/" + Environment.DIRECTORY_DCIM + "/",
+                            mMovieId + ".jpg");
             mPosterPath = String.valueOf(file);
 
             new Thread(new Runnable() {
