@@ -29,6 +29,11 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
         mOnClickListener = clickListener;
     }
 
+    public FavoritesAdapter(Context context) {
+        mContext = context;
+        mOnClickListener = null;
+    }
+
     @Override
     public FavoritesAdapterViewHolder onCreateViewHolder(ViewGroup parent, int position) {
         View view = LayoutInflater
@@ -43,6 +48,14 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
         mCursor.moveToPosition(position);
         String imgPath = mCursor.getString(mCursor
                 .getColumnIndex(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_POSTER_LOC));
+        String test = mCursor.getString(mCursor
+                .getColumnIndex(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_ID));
+        String test2 = mCursor.getString(mCursor
+                .getColumnIndex(FavoritesContract.FavoritesEntry._ID));
+        String test3 = mCursor.getString(mCursor
+                .getColumnIndex(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_TITLE));
+        String test4 = mCursor.getString(mCursor
+                .getColumnIndex(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_RELEASE_DATE));
         Picasso.with(mContext).load(R.mipmap.ic_launcher_round).into(favoritesAdapterViewHolder.mMoviePosterView);
         //Picasso.with(mContext).load(new File(imgPath)).into(favoritesAdapterViewHolder.mMoviePosterView);
     }

@@ -3,24 +3,34 @@ package com.example.android.popularmoviesstage1;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.popularmoviesstage1.data.FavoritesContract;
 import com.example.android.popularmoviesstage1.utilities.MovieDbJsonUtils;
 import com.example.android.popularmoviesstage1.utilities.NetworkUtils;
 import com.squareup.picasso.Picasso;
@@ -39,7 +49,9 @@ import java.util.ArrayList;
 
 import static com.example.android.popularmoviesstage1.data.FavoritesContract.*;
 
-public class MovieDetail extends AppCompatActivity implements View.OnClickListener{
+public class MovieDetail extends AppCompatActivity implements
+        View.OnClickListener,
+        LoaderManager.LoaderCallbacks<Cursor>{
 
     //Views that will be filled by EXTRA sent by Intent
     TextView mMovieTitle;
@@ -64,6 +76,26 @@ public class MovieDetail extends AppCompatActivity implements View.OnClickListen
     final static String YOUTUBE_BASE_URL = "https://www.youtube.com/watch?";
     final static String YOUTUBE_QUERY = "v";
 
+    //vars related to loading favorites from db
+    FavoritesAdapter mFavAdapter;
+    private static final int ID_FAVORITES_LOADER = 42;
+    private static final String TAG = MovieDetail.class.getSimpleName();
+
+    //String Arrays to keep projected columns and their matching indices to access the returned data
+    public static final String[] MOVIE_DETAIL_PROJECTION = {
+            FavoritesEntry.COLUMN_MOVIE_TITLE,
+            FavoritesEntry.COLUMN_MOVIE_RATING,
+            FavoritesEntry.COLUMN_MOVIE_RELEASE_DATE,
+            FavoritesEntry.COLUMN_MOVIE_SYNOPSIS,
+            FavoritesEntry.COLUMN_MOVIE_POSTER_LOC
+    };
+
+    public static final int INDEX_FAVORITES_TITLE = 0;
+    public static final int INDEX_FAVORITES_RATING = 1;
+    public static final int INDEX_FAVORITES_RELEASE_DATE = 2;
+    public static final int INDEX_FAVORITES_SYNOPSIS = 3;
+    public static final int INDEX_FAVORITES_POSTER_LOC = 4;
+
 
 
     @Override
@@ -78,26 +110,39 @@ public class MovieDetail extends AppCompatActivity implements View.OnClickListen
         mPosterImg = (ImageView) findViewById(R.id.detail_movie_poster);
         mMainLinearLayout = (LinearLayout) findViewById(R.id.mainLinearLayout);
 
-        mFavoritesBtn = (Button) findViewById(R.id.add_favorites_button);
+        mFavoritesBtn = (Button) findViewById(R.id.add_favorites_button); //TODO want this btn to change if movie is favorited already
         mFavoritesBtn.setTag(mFavoritesBtnTag);
-        mFavoritesBtn.setOnClickListener(MovieDetail.this);
+        mFavoritesBtn.setOnClickListener(MovieDetail.this); //todo for favorites view this should be changed to delete
+
+        mFavAdapter = new FavoritesAdapter(this);
+
+        getSupportLoaderManager().initLoader(ID_FAVORITES_LOADER, null, this);
 
         Intent intentThatStartedThisActivity = getIntent();
 
-        if (intentThatStartedThisActivity.hasExtra(Intent.EXTRA_TEXT)) {
-            MovieClass current_movie = getIntent().getParcelableExtra(Intent.EXTRA_TEXT);
-            mPosterUrl = current_movie.getPosterUrl();
-            mMovieId = current_movie.getMovieId();
-            mMovieTitle.setText(current_movie.getMovieTitle());
-            mMovieSynopsis.setText(current_movie.getSynopsis());
-            mMovieRating.setText(current_movie.getUserRating());
-            mReleaseDate.setText(current_movie.getReleaseDate());
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo(); //TODO Favorites may be loaded while online too. FIX
+        if(networkInfo != null && networkInfo.isConnected()) {
+            if (intentThatStartedThisActivity.hasExtra(Intent.EXTRA_TEXT)) {
+                    MovieClass current_movie = getIntent().getParcelableExtra(Intent.EXTRA_TEXT);
+                    mPosterUrl = current_movie.getPosterUrl();
+                    mMovieId = current_movie.getMovieId();
+                    mMovieTitle.setText(current_movie.getMovieTitle());
+                    mMovieSynopsis.setText(current_movie.getSynopsis());
+                    mMovieRating.setText(current_movie.getUserRating());
+                    mReleaseDate.setText(current_movie.getReleaseDate());
 
-            Picasso.with(this).load(mPosterUrl).into(mPosterImg);
+                    Picasso.with(this).load(mPosterUrl).into(mPosterImg);
 
-            URL movieDbSearchUrl = NetworkUtils.buildDetailUrl(mMovieId);
-            new MovieDbQuery().execute(movieDbSearchUrl);
-        }
+                    URL movieDbSearchUrl = NetworkUtils.buildDetailUrl(mMovieId);
+                    new MovieDbQuery().execute(movieDbSearchUrl);
+                    }
+            } else {
+                //mEmptyView.setText(R.string.no_internet_connection); //TODO EmptyView, should be avl in network connect too?
+                // TODO Can I get movieId this way?
+                getSupportLoaderManager().initLoader(ID_FAVORITES_LOADER, null, this);
+            }
+
 
 
     }
@@ -108,7 +153,6 @@ public class MovieDetail extends AppCompatActivity implements View.OnClickListen
 
         if (viewTag.equals(mFavoritesBtnTag)) {
             addMovieToFavorites();
-
         } else if (viewTag != null){
             //retrieve videoId from view and use it to build video Uri
             String videoId = viewTag;
@@ -193,13 +237,10 @@ public class MovieDetail extends AppCompatActivity implements View.OnClickListen
                                     "\n\n" + reviewText);
                             reviewTextView.setOnClickListener(MovieDetail.this); //TODO adjust onClick method if I would like to use this
                         }
-
                     }
-
                 }
             }
         }
-
     }
 
     public Uri buildTrailerUrl(String videoId) {
@@ -262,33 +303,52 @@ public class MovieDetail extends AppCompatActivity implements View.OnClickListen
         public void onPrepareLoad(Drawable placeHolderDrawable) {}
     };
 
-    private String savePoster(String posterUrl) {
+    //For querying the sql db for Favorites
+    @Override
+    public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
 
+        Uri movieUri = FavoritesEntry.buildUriWithMovieId(1);
 
+        switch (loaderId) {
+            case ID_FAVORITES_LOADER:
+                return new CursorLoader(this,
+                        movieUri,
+                        MOVIE_DETAIL_PROJECTION,
+                        null,
+                        null,
+                        null);
 
-
-
-
-
-
-
-
-//        File test = getCacheDir();
-//        Drawable drawable = mPosterImg.getDrawable();
-//        String uriString = "com.squareup.picasso.PicassoDrawable@151558c";
-//        InputStream inputStream = null;
-//        try {
-//            inputStream = getContentResolver().openInputStream(Uri.parse(uriString));
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        }
-//        drawable = Drawable.createFromStream(inputStream, uriString);
-//        Bitmap bitmap = BitmapFactory.decodeFile(uri);
-//        mPosterImg.setImageBitmap(BitmapFactory.decodeFile(uri));
-//        mPosterImg.invalidate();
-//        Picasso.with(this).load(uri).into(mPosterImg);
-//        mPosterImg.invalidate();
-        String other = "stuff";
-        return other;
+            default:
+                throw new RuntimeException("Loader Not Implemented: " + loaderId);
+        }
     }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        //mFavAdapter.swapCursor(data); //TODO probably... don't need?
+
+        //Check if data is valid before binding data to UI
+        boolean cursorHasValidData = false;
+
+        if (data != null && data.moveToFirst()) { //TODO this doesn't seem to be working...
+            cursorHasValidData = true;
+        }
+
+        if (!cursorHasValidData) {
+            return;
+        }
+
+        String title = data.getString(INDEX_FAVORITES_TITLE); //TODO for testing only
+        String rating = data.getString(INDEX_FAVORITES_RATING);
+        String releaseDate = data.getString(INDEX_FAVORITES_RELEASE_DATE);
+        String synopsis = data.getString(INDEX_FAVORITES_SYNOPSIS);
+
+        mMovieTitle.setText(data.getString(INDEX_FAVORITES_TITLE));
+        mMovieRating.setText(data.getString(INDEX_FAVORITES_RATING));
+        mReleaseDate.setText(data.getString(INDEX_FAVORITES_RELEASE_DATE));
+        mMovieSynopsis.setText(data.getString(INDEX_FAVORITES_SYNOPSIS));
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) { mFavAdapter.swapCursor(null); }
 }

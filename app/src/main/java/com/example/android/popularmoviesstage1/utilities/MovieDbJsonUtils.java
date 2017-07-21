@@ -105,7 +105,7 @@ public final class MovieDbJsonUtils {
             return extraMovieDetails;
         }
 
-        return movies; //TODO Is this return structure okay?
+        return movies;
 
     }
 

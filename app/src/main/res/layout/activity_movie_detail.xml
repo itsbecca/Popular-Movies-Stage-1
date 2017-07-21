@@ -16,10 +16,13 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
+    <!--
+    Change detail_movie_poster's height back to wrap_content once image testing is finished
+    -->
         <ImageView
             android:contentDescription="@string/movie_poster"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="300dp"
             android:id="@+id/detail_movie_poster"/>
 
         <LinearLayout

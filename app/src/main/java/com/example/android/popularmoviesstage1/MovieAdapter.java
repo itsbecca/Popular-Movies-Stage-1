@@ -17,12 +17,12 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
     private View view;
     private final ListItemClickListener mOnClickListener;
 
-    public MovieAdapter(ListItemClickListener clickListener) {
-        mOnClickListener = clickListener;
-    }
-
     public interface ListItemClickListener {
         void onListItemClick(int clickedItemIndex);
+    }
+
+    public MovieAdapter(ListItemClickListener clickListener) {
+        mOnClickListener = clickListener;
     }
 
     @Override

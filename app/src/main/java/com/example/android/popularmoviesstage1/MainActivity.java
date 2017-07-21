@@ -43,9 +43,16 @@ public class MainActivity extends AppCompatActivity implements
 
     RecyclerView mList;
     ArrayList<MovieClass> jsonMovieDbData;
-    String spinnerData;
 
-    LoaderManager.LoaderCallbacks mLoaderCallbacks = this; //TODO Do I have to use this
+    //To identify which spinner menu choice is selected currently
+    String spinnerData;
+    String[] spinnerArray;
+    private static final int SPINNER_POPULAR_SORT = 0;
+    private static final int SPINNER_RATED_SORT = 1;
+    private static final int SPINNER_FAVORITES_SORT = 2;
+
+
+    LoaderManager.LoaderCallbacks mLoaderCallbacks = this;
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int ID_FAVORITES_LOADER = 42;
@@ -58,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements
         mProgressBar = (ProgressBar) findViewById(R.id.pb_loading_indicator);
         mEmptyView = (TextView) findViewById(R.id.empty_view);
         mList = (RecyclerView) findViewById(R.id.recyclerview_movie);
+        spinnerArray = getResources().getStringArray(R.array.movie_sort_array);
 
         //number of columns adjusts depending on layout
         final int columns = getResources().getInteger(R.integer.gallery_columns);
@@ -78,9 +86,10 @@ public class MainActivity extends AppCompatActivity implements
         //check for internet connection
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        if(networkInfo != null && networkInfo.isConnected()) { //todo pull out most of this, need to setup layout w/o connection too
-            makeMovieDbSearchQuery();
+        if(networkInfo != null && networkInfo.isConnected()) {
+            makeMovieDbSearchQuery(); //TODO this will need to change if I make sort selection persistent
         } else {
+            mEmptyView.setVisibility(View.VISIBLE);
             mEmptyView.setText(R.string.no_internet_connection); //TODO Change to indicate can only see favs when offline
         }
     }
@@ -95,37 +104,41 @@ public class MainActivity extends AppCompatActivity implements
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
             spinnerData = (String) parent.getItemAtPosition(position);
-            String[] spinnerArray = getResources().getStringArray(R.array.movie_sort_array);
 
-            if (spinnerData.equals(spinnerArray[0]) || spinnerData.equals(spinnerArray[1])) { //TODO do I need to get rid of these nums?
-                mList.setAdapter(mMovieAdapter);
+            if ( spinnerData.equals(spinnerArray[SPINNER_POPULAR_SORT])||
+                    spinnerData.equals(spinnerArray[SPINNER_RATED_SORT])) {
+                mList.setAdapter(mMovieAdapter); //TODO FIX: If I switch here from Favorites then EmptyView is invis
                 makeMovieDbSearchQuery();
-            } else {
+            } else if (spinnerData.equals((spinnerArray[SPINNER_FAVORITES_SORT]))) { //TODO is it okay not to have an else? (onlistclick too)
+                mEmptyView.setVisibility(View.INVISIBLE);
                 mList.setAdapter(mFavAdapter);
                 getSupportLoaderManager().initLoader(ID_FAVORITES_LOADER, null, mLoaderCallbacks);
             }
         }
 
         @Override
-        public void onNothingSelected(AdapterView<?> parent) {
-
-        }
-
+        public void onNothingSelected(AdapterView<?> parent) {}
     }
+
     @Override
     public void onListItemClick(int clickedItemIndex) {
 
         Context context = MainActivity.this;
         Class destinationActivity = MovieDetail.class;
 
-        Intent intent = new Intent(context,destinationActivity);
-        intent.putExtra(Intent.EXTRA_TEXT, jsonMovieDbData.get(clickedItemIndex));
-        startActivity(intent);
+        if ( spinnerData.equals(spinnerArray[SPINNER_POPULAR_SORT])|| //Todo This has repetition to cut down on I think
+                spinnerData.equals(spinnerArray[SPINNER_RATED_SORT])) {
+            Intent intent = new Intent(context, destinationActivity);
+            intent.putExtra(Intent.EXTRA_TEXT, jsonMovieDbData.get(clickedItemIndex));
+            startActivity(intent);
+        } else if (spinnerData.equals((spinnerArray[SPINNER_FAVORITES_SORT]))){
+            Intent intent = new Intent(context, destinationActivity);
+            startActivity(intent);
+        }
 
     }
 
     public class MovieDbQuery extends AsyncTask<URL, Void, ArrayList<MovieClass>> {
-
 
         @Override
         protected void onPreExecute() { mProgressBar.setVisibility(View.VISIBLE);        }
@@ -183,7 +196,7 @@ public class MainActivity extends AppCompatActivity implements
                 try {
                     return getContentResolver().query(FavoritesContract.FavoritesEntry.CONTENT_URI,
                             null,
-                            FavoritesContract.FavoritesEntry.COLUMN_MOVIE_POSTER_LOC,
+                            null,
                             null,
                             null);
 
@@ -207,8 +220,6 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-
-    }
+    public void onLoaderReset(Loader<Cursor> loader) { mFavAdapter.swapCursor(null); }
 }
 
