@@ -282,14 +282,14 @@ public class MovieDetail extends AppCompatActivity implements
                 @Override
                 public void run() {
                     try {
-                        //FileOutputStream outputStream = openFileOutput(mPosterPath, Context.MODE_PRIVATE);
                         file.createNewFile();
                         FileOutputStream outputStream = new FileOutputStream(file);
                         bitmap.compress(Bitmap.CompressFormat.JPEG,100,outputStream);
+                        outputStream.flush();
                         outputStream.close();
                     }
-                    catch (Exception e) {
-                        e.printStackTrace();
+                    catch (IOException e) {
+                        Log.e(TAG, "IOException",e.getCause());
                     }
                 }
             }).start();
