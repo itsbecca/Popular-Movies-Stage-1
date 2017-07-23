@@ -90,7 +90,7 @@ public class FavoritesProvider extends ContentProvider{
 
                 retCursor = db.query(FavoritesEntry.TABLE_NAME,
                         projection,
-                        FavoritesEntry._ID + "=?",
+                        FavoritesEntry.COLUMN_MOVIE_ID + "=?",
                         new String[]{id},
                         null,
                         null,

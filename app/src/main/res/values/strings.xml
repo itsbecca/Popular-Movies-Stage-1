@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Popular Movies Stage 1</string>
+    <string name="app_name">Popular Movies Stage 2</string>
     <string name="api_url" translatable="false">http://api.themoviedb.org/3/movie/</string>
     <string name="popular_sort">popular</string>
     <string name="rating_sort">top_rated</string>
@@ -16,8 +16,15 @@
     </string-array>
     <string name="title_activity_settings">Settings</string>
 
-    //
     <string name="favorites_btn_txt">Add to Favorites</string>
 
     <string name="trailer_views" translatable="false">trailer_num_</string>
+
+    //var to track whether detail view is being loaded from favorites, which loads from sql db
+    //or from one of the sorting methods that loads from online API
+    <string name="sort_type" translatable="false">sort_type</string>
+
+    //var to store movieId through activities
+    <string name="current_movie_id" translatable="false">current_movie_id</string>
+    <string name="saved_to_favorites">saved to favorites</string>
 </resources>

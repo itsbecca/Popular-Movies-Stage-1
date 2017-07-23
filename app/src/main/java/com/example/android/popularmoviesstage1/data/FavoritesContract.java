@@ -35,5 +35,10 @@ public class FavoritesContract {
                     .appendPath(movieId).build();
         }
 
+        public static Uri buildUriWithMovieId(String movieId) {
+            return CONTENT_URI.buildUpon()
+                    .appendPath(movieId).build();
+        }
+
     }
 }

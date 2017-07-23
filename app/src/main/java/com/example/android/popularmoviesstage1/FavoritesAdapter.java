@@ -50,7 +50,7 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
         String imgPath = mCursor.getString(mCursor
                 .getColumnIndex(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_POSTER_LOC));
 
-        Picasso.with(mContext).load(new File(imgPath)).into(favoritesAdapterViewHolder.mMoviePosterView);
+        Picasso.with(mContext).load(new File(imgPath)).error(R.drawable.image_error).into(favoritesAdapterViewHolder.mMoviePosterView);
     }
 
     @Override

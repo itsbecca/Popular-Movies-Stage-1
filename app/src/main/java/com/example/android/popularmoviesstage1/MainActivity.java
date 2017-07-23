@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements
     TextView mEmptyView;
     MovieAdapter mMovieAdapter;
     FavoritesAdapter mFavAdapter;
+    Cursor mFavoritesData;
 
     RecyclerView mList;
     ArrayList<MovieClass> jsonMovieDbData;
@@ -75,8 +76,6 @@ public class MainActivity extends AppCompatActivity implements
 
         mMovieAdapter = new MovieAdapter(this);
         mFavAdapter = new FavoritesAdapter(this, this);
-
-
 
         Spinner spinner = (Spinner) findViewById(R.id.spinner);
         spinner.setOnItemSelectedListener(new SpinnerSort());
@@ -130,11 +129,17 @@ public class MainActivity extends AppCompatActivity implements
                 spinnerData.equals(spinnerArray[SPINNER_RATED_SORT])) {
             Intent intent = new Intent(context, destinationActivity);
             intent.putExtra(Intent.EXTRA_TEXT, jsonMovieDbData.get(clickedItemIndex));
-            intent.putExtra("favoritesOrNot",SPINNER_POPULAR_SORT); //TODO I'm a string, banish me
+            intent.putExtra(getResources().getString(R.string.sort_type),SPINNER_POPULAR_SORT);
             startActivity(intent);
         } else if (spinnerData.equals((spinnerArray[SPINNER_FAVORITES_SORT]))){
             Intent intent = new Intent(context, destinationActivity);
-            intent.putExtra("favoritesOrNot",SPINNER_FAVORITES_SORT);
+            //retreive movieId for clicked film to send to MovieDetail
+            mFavoritesData.moveToPosition(clickedItemIndex);
+            String movieId = mFavoritesData.getString(mFavoritesData.getColumnIndex(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_ID));
+            intent.putExtra(getResources().getString(R.string.current_movie_id),movieId);
+
+            //store int that tracks if user clicked through favorites sort or not
+            intent.putExtra(getResources().getString(R.string.sort_type),SPINNER_FAVORITES_SORT);
             startActivity(intent);
         }
 
@@ -182,9 +187,6 @@ public class MainActivity extends AppCompatActivity implements
     public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
 
         return new AsyncTaskLoader<Cursor>(this) {
-
-            Cursor mFavoritesData = null;
-
             @Override
             protected void onStartLoading() {
                 if (mFavoritesData != null) {

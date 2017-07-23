@@ -118,7 +118,8 @@ public class MovieDetail extends AppCompatActivity implements
         mFavAdapter = new FavoritesAdapter(this);
 
         Bundle extras = getIntent().getExtras();
-        int favoritesOrNot = extras.getInt("favoritesOrNot");
+        int favoritesOrNot = extras.getInt(getResources().getString(R.string.sort_type));
+        mMovieId = extras.getString(getResources().getString(R.string.current_movie_id));
 
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
@@ -231,7 +232,6 @@ public class MovieDetail extends AppCompatActivity implements
                             reviewTextView.setTag(reviewUrl);
                             reviewTextView.setText("Reviewer: " + reviewerName +
                                     "\n\n" + reviewText);
-                            reviewTextView.setOnClickListener(MovieDetail.this); //TODO adjust onClick method if I would like to use this
                         }
                     }
                 }
@@ -256,14 +256,14 @@ public class MovieDetail extends AppCompatActivity implements
         movieDetails.put(FavoritesEntry.COLUMN_MOVIE_RELEASE_DATE,String.valueOf(mReleaseDate.getText()));
         movieDetails.put(FavoritesEntry.COLUMN_MOVIE_SYNOPSIS,String.valueOf(mMovieSynopsis.getText()));
 
-        Picasso.with(this).load(mPosterUrl).into(target);
+        Picasso.with(this).load(mPosterUrl).error(R.drawable.image_error).into(target);
         movieDetails.put(FavoritesEntry.COLUMN_MOVIE_POSTER_LOC, mPosterPath);
 
         Uri uri = getContentResolver().insert(FavoritesEntry.CONTENT_URI,movieDetails);
 
         if(uri != null) {
             Toast.makeText(getBaseContext(),
-                    String.valueOf(mMovieTitle.getText()) + " saved to favorites", //TODO I'm a string, remove me
+                    String.valueOf(mMovieTitle.getText()) + " " + getString(R.string.saved_to_favorites),
                     Toast.LENGTH_LONG).show();
         }
     }
@@ -274,7 +274,7 @@ public class MovieDetail extends AppCompatActivity implements
         public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
             final File file = new File(
                     Environment.getExternalStorageDirectory() + "/" + Environment.DIRECTORY_DCIM + "/",
-                            mMovieId + ".jpg"); //TODO can this be internal storage now?
+                            mMovieId + ".jpg");
             mPosterPath = String.valueOf(file);
 
             new Thread(new Runnable() {
@@ -305,7 +305,7 @@ public class MovieDetail extends AppCompatActivity implements
     @Override
     public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
 
-        Uri movieUri = FavoritesEntry.buildUriWithMovieId(1);
+        Uri movieUri = FavoritesEntry.buildUriWithMovieId(mMovieId);
 
         switch (loaderId) {
             case ID_FAVORITES_LOADER:
@@ -348,5 +348,32 @@ public class MovieDetail extends AppCompatActivity implements
     @Override
     public void onLoaderReset(Loader<Cursor> loader) { mFavAdapter.swapCursor(null); }
 
-
+    //Requesting permissions to read/write
+    public void permissionRequest () {
+//        if (ContextCompat.checkSelfPermission(thisActivity,
+//                Manifest.permission.READ_CONTACTS)
+//                != PackageManager.PERMISSION_GRANTED) {
+//
+//            // Should we show an explanation?
+//            if (ActivityCompat.shouldShowRequestPermissionRationale(thisActivity,
+//                    Manifest.permission.READ_CONTACTS)) {
+//
+//                // Show an explanation to the user *asynchronously* -- don't block
+//                // this thread waiting for the user's response! After the user
+//                // sees the explanation, try again to request the permission.
+//
+//            } else {
+//
+//                // No explanation needed, we can request the permission.
+//
+//                ActivityCompat.requestPermissions(thisActivity,
+//                        new String[]{Manifest.permission.READ_CONTACTS},
+//                        MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+//
+//                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+//                // app-defined int constant. The callback method gets the
+//                // result of the request.
+//            }
+//        }
+    }
 }
