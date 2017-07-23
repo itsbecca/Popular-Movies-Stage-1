@@ -49,17 +49,8 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
         mCursor.moveToPosition(position);
         String imgPath = mCursor.getString(mCursor
                 .getColumnIndex(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_POSTER_LOC));
-        File file = new File(imgPath);
 
-        Picasso.with(mContext).load(R.mipmap.ic_launcher_round).into(favoritesAdapterViewHolder.mMoviePosterView); //TODO For testing only, remove once image loading works
-
-        //Picasso.with(mContext).load(new File(imgPath)).into(favoritesAdapterViewHolder.mMoviePosterView);
-        if(file.exists()) {
-            System.out.println("file is already there");
-        }else{
-            System.out.println("Not find file ");
-        }
-        //storage/emulated/0/moviePosters/324852.jpg
+        Picasso.with(mContext).load(new File(imgPath)).into(favoritesAdapterViewHolder.mMoviePosterView);
     }
 
     @Override

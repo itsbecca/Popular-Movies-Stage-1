@@ -37,7 +37,7 @@ public final class MovieDbJsonUtils {
         final String MOVIE_REVIEWS = "reviews";
         final String MOVIE_REVIEWER_NAME = "author";
         final String MOVIE_REVIEW_TEXT = "content";
-        final String MOVIE_REVIEW_URL = "url"; //TODO Remove here and below if end up not using/needing
+        final String MOVIE_REVIEW_URL = "url";
 
         JSONObject reader = new JSONObject(movieDbJsonString);
 
@@ -65,7 +65,7 @@ public final class MovieDbJsonUtils {
 
                 movies.add(new MovieClass(movieTitle, posterUrl, synopsis, releaseDate, userRating, movieId));
             }
-        } else { // if getting trailers and reviews for detail page //TODO can I specify MovieDetail here?
+        } else { // if getting trailers and reviews for detail page
             //Getting trailer information
             JSONObject trailers = reader.getJSONObject(MOVIE_TRAILERS);
             JSONArray trailerResults = trailers.getJSONArray(MDB_RESULTS);

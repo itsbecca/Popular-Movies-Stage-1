@@ -55,7 +55,7 @@ public class NetworkUtils {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        return url; //TODO potential null pointer exception?
+        return url;
     }
 
     public static String getResponseFromHttpUrl(URL url) throws IOException {

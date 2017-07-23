@@ -169,6 +169,7 @@ public class MainActivity extends AppCompatActivity implements
             if (movieDbSearchResults != null) {
                 mEmptyView.setVisibility(View.INVISIBLE);
                 mMovieAdapter.setMovieInfo(movieDbSearchResults);
+
             } else {
                 mEmptyView.setText(R.string.no_results);
             }

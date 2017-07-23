@@ -96,7 +96,8 @@ public class MovieDetail extends AppCompatActivity implements
     public static final int INDEX_FAVORITES_SYNOPSIS = 3;
     public static final int INDEX_FAVORITES_POSTER_LOC = 4;
 
-
+    //TODO setup runtime permission writing to external storage to support 23APK and above
+    //https://developer.android.com/training/permissions/requesting.html
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,7 +139,6 @@ public class MovieDetail extends AppCompatActivity implements
                 new MovieDbQuery().execute(movieDbSearchUrl);
             } else return; //mEmptyView.setText(R.string.no_internet_connection); //TODO Setup EmptyView in xml
         } else if (favoritesOrNot == MainActivity.SPINNER_FAVORITES_SORT) {
-            // TODO Can I get movieId this way?
             getSupportLoaderManager().initLoader(ID_FAVORITES_LOADER, null, this);
             //TODO Do I have any network based decisions to make for Favorites view?//
             }
@@ -215,7 +215,6 @@ public class MovieDetail extends AppCompatActivity implements
                             mMainLinearLayout.addView(trailerTextView);
                             trailerTextView.setTag(videoId);
                             trailerTextView.setText("Click to play " + videoTitle);
-                            //trailerTextView.setId(R.string.trailer_views + f); //TODO do they need an id?
                             trailerTextView.setOnClickListener(MovieDetail.this);
                         }
                     }
@@ -275,7 +274,7 @@ public class MovieDetail extends AppCompatActivity implements
         public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
             final File file = new File(
                     Environment.getExternalStorageDirectory() + "/" + Environment.DIRECTORY_DCIM + "/",
-                            mMovieId + ".jpg");
+                            mMovieId + ".jpg"); //TODO can this be internal storage now?
             mPosterPath = String.valueOf(file);
 
             new Thread(new Runnable() {
@@ -293,17 +292,6 @@ public class MovieDetail extends AppCompatActivity implements
                     }
                 }
             }).start();
-//            if (bitmap == null) { //TODO Testing only, delete once image loading properly
-//                System.out.println("Ain't no pic here");
-//            } else {
-//                String test = "AH!";
-//            }
-//
-//            if(file.exists()) {
-//                System.out.println("file is already there");
-//            }else{
-//                System.out.println("Not find file ");
-//            }
         }
 
         @Override
@@ -335,12 +323,12 @@ public class MovieDetail extends AppCompatActivity implements
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        //mFavAdapter.swapCursor(data); //TODO probably... don't need?
+        mFavAdapter.swapCursor(data);
 
         //Check if data is valid before binding data to UI
         boolean cursorHasValidData = false;
 
-        if (data != null && data.moveToFirst()) { //TODO this doesn't seem to be working...
+        if (data != null && data.moveToFirst()) {
             cursorHasValidData = true;
         }
 
@@ -348,10 +336,8 @@ public class MovieDetail extends AppCompatActivity implements
             return;
         }
 
-        String title = data.getString(INDEX_FAVORITES_TITLE); //TODO for testing only
-        String rating = data.getString(INDEX_FAVORITES_RATING);
-        String releaseDate = data.getString(INDEX_FAVORITES_RELEASE_DATE);
-        String synopsis = data.getString(INDEX_FAVORITES_SYNOPSIS);
+        String posterPath = data.getString(INDEX_FAVORITES_POSTER_LOC);
+        Picasso.with(this).load(new File(posterPath)).into(mPosterImg);
 
         mMovieTitle.setText(data.getString(INDEX_FAVORITES_TITLE));
         mMovieRating.setText(data.getString(INDEX_FAVORITES_RATING));
@@ -361,4 +347,6 @@ public class MovieDetail extends AppCompatActivity implements
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) { mFavAdapter.swapCursor(null); }
+
+
 }
