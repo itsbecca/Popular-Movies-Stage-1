@@ -153,6 +153,7 @@ public class MovieDetail extends AppCompatActivity implements
                 mEmptyView.setText(R.string.no_internet_connection);
             }
         }
+        rwPermissionRequest();
     }
 
     @Override
@@ -160,12 +161,8 @@ public class MovieDetail extends AppCompatActivity implements
         String viewTag = (String) view.getTag();
 
         if (viewTag.equals(mFavoritesBtnTag)) {
-            rwPermissionRequest();
-            if (mHasRwPermission) {
                 addMovieToFavorites();
-            } else {
-                Toast.makeText(this, "Unable to save to phone", Toast.LENGTH_LONG).show();
-            }
+
         } else if (viewTag != null){
             //retrieve videoId from view and use it to build video Uri
             String videoId = viewTag;
@@ -185,7 +182,6 @@ public class MovieDetail extends AppCompatActivity implements
 
         @Override
         protected void onPreExecute() {
-            //    mProgressBar.setVisibility(View.VISIBLE); TODO: implement progress bar in this activity
         }
 
         @Override
@@ -207,16 +203,8 @@ public class MovieDetail extends AppCompatActivity implements
 
         @Override
         protected void onPostExecute(ArrayList<ArrayList<String>> movieDbSearchResults) {
-//            mProgressBar.setVisibility(View.INVISIBLE);
-//
-//            if (movieDbSearchResults != null) {
-//                mEmptyView.setVisibility(View.INVISIBLE);
-//                mMovieAdapter.setMovieInfo(movieDbSearchResults);
-//            } else {
-//                mEmptyView.setText(R.string.no_results);
-//            }
             if (movieDbSearchResults != null) {
-                //separate results into the two relevant array lists: Trailers and Reviews
+                //separates results into the two relevant array lists: Trailers and Reviews
                 ArrayList<String> trailerResults = movieDbSearchResults.get(0);
                 ArrayList<String> reviewResults = movieDbSearchResults.get(1);
 
@@ -263,7 +251,7 @@ public class MovieDetail extends AppCompatActivity implements
     }
 
     //saves poster into a given folder and saves path to be stored in db
-    private Target target = new Target() { //TODO Can this be moved out to a util doc?
+    private Target target = new Target() {
         @Override
         public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
             final File file = new File(
@@ -361,7 +349,7 @@ public class MovieDetail extends AppCompatActivity implements
         if (mHasRwPermission){
             String posterPath = data.getString(INDEX_FAVORITES_POSTER_LOC);
             Picasso.with(this).load(new File(posterPath)).into(mPosterImg);
-        } else Picasso.with(this).load(R.drawable.image_error).into(mPosterImg);
+        }
 
         mMovieTitle.setText(data.getString(INDEX_FAVORITES_TITLE));
         mMovieRating.setText(data.getString(INDEX_FAVORITES_RATING));
@@ -391,7 +379,7 @@ public class MovieDetail extends AppCompatActivity implements
                                            int[] grantResults) {
 
         if (PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE == requestCode) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 mHasRwPermission = true;
             } else mHasRwPermission = false;
         }

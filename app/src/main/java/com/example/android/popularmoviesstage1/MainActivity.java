@@ -19,6 +19,7 @@ import android.widget.AdapterView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.popularmoviesstage1.data.FavoritesContract;
 import com.example.android.popularmoviesstage1.utilities.MovieDbJsonUtils;
@@ -79,16 +80,19 @@ public class MainActivity extends AppCompatActivity implements
         Spinner spinner = (Spinner) findViewById(R.id.spinner);
         spinner.setOnItemSelectedListener(new SpinnerSort());
 
-        spinnerData = spinner.getSelectedItem().toString();
+        if ((savedInstanceState != null) &&
+            (savedInstanceState.getString(getString(R.string.spinner_state)) != null)) {
+            spinnerData = savedInstanceState.getString(getString(R.string.spinner_state));
+        } else spinnerData = spinner.getSelectedItem().toString();
 
         //check for internet connection
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         if(networkInfo != null && networkInfo.isConnected()) {
-            makeMovieDbSearchQuery(); //TODO this will need to change if I make sort selection persistent
+            makeMovieDbSearchQuery();
         } else {
             mEmptyView.setVisibility(View.VISIBLE);
-            mEmptyView.setText(R.string.no_internet_connection); //TODO Change to indicate can only see favs when offline
+            mEmptyView.setText(R.string.offline_main);
         }
     }
 
@@ -102,20 +106,22 @@ public class MainActivity extends AppCompatActivity implements
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
             spinnerData = (String) parent.getItemAtPosition(position);
-
-            if ( spinnerData.equals(spinnerArray[SPINNER_POPULAR_SORT])||
-                    spinnerData.equals(spinnerArray[SPINNER_RATED_SORT])) {
-                mList.setAdapter(mMovieAdapter); //TODO FIX: If I switch here from Favorites then EmptyView is invis
-                makeMovieDbSearchQuery();
-            } else if (spinnerData.equals((spinnerArray[SPINNER_FAVORITES_SORT]))) {
-//                mEmptyView.setVisibility(View.INVISIBLE); //TODO Should still show if Favorites has no items
-                mList.setAdapter(mFavAdapter);
-                getSupportLoaderManager().initLoader(ID_FAVORITES_LOADER, null, mLoaderCallbacks);
-            }
+            loadSpinnerData(spinnerData);
         }
 
         @Override
         public void onNothingSelected(AdapterView<?> parent) {}
+    }
+
+    public void loadSpinnerData (String spinnerData) {
+        if ( spinnerData.equals(spinnerArray[SPINNER_POPULAR_SORT])||
+                spinnerData.equals(spinnerArray[SPINNER_RATED_SORT])) {
+            mList.setAdapter(mMovieAdapter);
+            makeMovieDbSearchQuery();
+        } else if (spinnerData.equals((spinnerArray[SPINNER_FAVORITES_SORT]))) {
+            mList.setAdapter(mFavAdapter);
+            getSupportLoaderManager().initLoader(ID_FAVORITES_LOADER, null, mLoaderCallbacks);
+        }
     }
 
     @Override
@@ -214,16 +220,27 @@ public class MainActivity extends AppCompatActivity implements
             public void deliverResult(Cursor data) {
                 mFavoritesData = data;
                 super.deliverResult(data);
+
+                //if the favorites db is empty we will return a msg informing the user
+                if (data.getCount() <= 0) {
+                    mEmptyView.setVisibility(View.VISIBLE);
+                    mEmptyView.setText(R.string.no_favorites);
+                } else mEmptyView.setVisibility(View.GONE);
             }
         };
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mFavAdapter.swapCursor(data);
-    }
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {mFavAdapter.swapCursor(data);}
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) { mFavAdapter.swapCursor(null); }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(getString(R.string.spinner_state),spinnerData);
+    }
+    //TODO Correct up button, system back works, but up makes savedinstancestate null
 }
 

@@ -11,4 +11,10 @@
         android:padding="@dimen/movie_poster_padding"
         android:adjustViewBounds="true"/>
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/optional_movie_title"
+        android:visibility="gone"/>
+
 </LinearLayout>

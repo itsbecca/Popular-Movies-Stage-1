@@ -7,6 +7,7 @@
     <string name="no_results">There are no movies to display</string>
     <string name="movie_poster">A Movie Poster</string>
     <string name="no_internet_connection">Cannot return results: No Internet Connection</string>
+    <string name="offline_main">No internet: Only Favorites can be seen offline</string>
 
     <string name="spinner_prompt">Sort Movies</string>
     <string-array name="movie_sort_array">
@@ -28,4 +29,5 @@
     <string name="current_movie_id" translatable="false">current_movie_id</string>
     <string name="saved_to_favorites">saved to favorites</string>
     <string name="no_favorites">You have not saved any favorites yet</string>
+    <string name="spinner_state">spinner_state</string>
 </resources>
