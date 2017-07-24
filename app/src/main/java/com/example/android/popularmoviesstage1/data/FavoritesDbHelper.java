@@ -26,7 +26,7 @@ public class FavoritesDbHelper extends SQLiteOpenHelper{
                 FavoritesEntry.COLUMN_MOVIE_RATING          + " TEXT NOT NULL," +
                 FavoritesEntry.COLUMN_MOVIE_RELEASE_DATE    + " TEXT NOT NULL," +
                 FavoritesEntry.COLUMN_MOVIE_SYNOPSIS        + " TEXT NOT NULL," +
-                FavoritesEntry.COLUMN_MOVIE_POSTER_LOC      + " TEXT NOT NULL,"  +
+                FavoritesEntry.COLUMN_MOVIE_POSTER_LOC      + " TEXT DEFAULT NULL,"  +
                 " UNIQUE (" + FavoritesEntry.COLUMN_MOVIE_ID + ") ON CONFLICT REPLACE);";
         sqLiteDatabase.execSQL(SQL_CREATE_FAVORITES_TABLE);
     }

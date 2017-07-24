@@ -7,13 +7,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.example.android.popularmoviesstage1.data.FavoritesContract;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
-import java.util.ArrayList;
 
 public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.FavoritesAdapterViewHolder> {
 
@@ -50,7 +48,9 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
         String imgPath = mCursor.getString(mCursor
                 .getColumnIndex(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_POSTER_LOC));
 
+        //Don't need to check permissions here, .error takes care of it //TODO actually it'd be nice to have names if img doesn't work?
         Picasso.with(mContext).load(new File(imgPath)).error(R.drawable.image_error).into(favoritesAdapterViewHolder.mMoviePosterView);
+
     }
 
     @Override

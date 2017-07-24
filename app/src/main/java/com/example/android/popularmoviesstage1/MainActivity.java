@@ -1,6 +1,5 @@
 package com.example.android.popularmoviesstage1;
 
-import android.app.LauncherActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -64,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main);
 
         mProgressBar = (ProgressBar) findViewById(R.id.pb_loading_indicator);
-        mEmptyView = (TextView) findViewById(R.id.empty_view);
+        mEmptyView = (TextView) findViewById(R.id.empty_view_main);
         mList = (RecyclerView) findViewById(R.id.recyclerview_movie);
         spinnerArray = getResources().getStringArray(R.array.movie_sort_array);
 
@@ -109,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements
                 mList.setAdapter(mMovieAdapter); //TODO FIX: If I switch here from Favorites then EmptyView is invis
                 makeMovieDbSearchQuery();
             } else if (spinnerData.equals((spinnerArray[SPINNER_FAVORITES_SORT]))) {
-                mEmptyView.setVisibility(View.INVISIBLE); //TODO Should still show if Favorites has no items
+//                mEmptyView.setVisibility(View.INVISIBLE); //TODO Should still show if Favorites has no items
                 mList.setAdapter(mFavAdapter);
                 getSupportLoaderManager().initLoader(ID_FAVORITES_LOADER, null, mLoaderCallbacks);
             }
@@ -125,14 +124,14 @@ public class MainActivity extends AppCompatActivity implements
         Context context = MainActivity.this;
         Class destinationActivity = MovieDetail.class;
 
-        if ( spinnerData.equals(spinnerArray[SPINNER_POPULAR_SORT])|| //Todo This has repetition to cut down on I think
+        Intent intent = new Intent(context, destinationActivity);
+        //Data sent with intent is dependent on which sort method they clicked from
+        //Popular and Rated both use API query, Favorites can be loaded offline w/ db query.
+        if ( spinnerData.equals(spinnerArray[SPINNER_POPULAR_SORT])||
                 spinnerData.equals(spinnerArray[SPINNER_RATED_SORT])) {
-            Intent intent = new Intent(context, destinationActivity);
             intent.putExtra(Intent.EXTRA_TEXT, jsonMovieDbData.get(clickedItemIndex));
             intent.putExtra(getResources().getString(R.string.sort_type),SPINNER_POPULAR_SORT);
-            startActivity(intent);
         } else if (spinnerData.equals((spinnerArray[SPINNER_FAVORITES_SORT]))){
-            Intent intent = new Intent(context, destinationActivity);
             //retreive movieId for clicked film to send to MovieDetail
             mFavoritesData.moveToPosition(clickedItemIndex);
             String movieId = mFavoritesData.getString(mFavoritesData.getColumnIndex(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_ID));
@@ -140,8 +139,8 @@ public class MainActivity extends AppCompatActivity implements
 
             //store int that tracks if user clicked through favorites sort or not
             intent.putExtra(getResources().getString(R.string.sort_type),SPINNER_FAVORITES_SORT);
-            startActivity(intent);
         }
+        startActivity(intent);
 
     }
 

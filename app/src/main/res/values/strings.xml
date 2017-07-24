@@ -27,4 +27,5 @@
     //var to store movieId through activities
     <string name="current_movie_id" translatable="false">current_movie_id</string>
     <string name="saved_to_favorites">saved to favorites</string>
+    <string name="no_favorites">You have not saved any favorites yet</string>
 </resources>

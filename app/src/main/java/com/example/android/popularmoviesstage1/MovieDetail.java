@@ -1,12 +1,12 @@
 package com.example.android.popularmoviesstage1;
 
+import android.Manifest;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -14,23 +14,20 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.android.popularmoviesstage1.data.FavoritesContract;
 import com.example.android.popularmoviesstage1.utilities.MovieDbJsonUtils;
 import com.example.android.popularmoviesstage1.utilities.NetworkUtils;
 import com.squareup.picasso.Picasso;
@@ -38,12 +35,9 @@ import com.squareup.picasso.Target;
 
 import org.json.JSONException;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -64,13 +58,20 @@ public class MovieDetail extends AppCompatActivity implements
     String mPosterUrl;
     String mMovieId;
     String mPosterPath;
-
     Button mFavoritesBtn;
+
+    //if there is no data
+    TextView mEmptyView;
+
     // to identify btn click
     String mFavoritesBtnTag = "add_favorites";
 
     //LinearLayout that will hold views created programmatically to hold trailers and reviews if available for movie
     LinearLayout mMainLinearLayout;
+
+    //to store whether permissions to read and write data so the app can respond to either situation
+    //defaulted to false to avoid possible null pointer errors
+    Boolean mHasRwPermission = false;
 
     //For forming YouTube uri
     final static String YOUTUBE_BASE_URL = "https://www.youtube.com/watch?";
@@ -96,8 +97,7 @@ public class MovieDetail extends AppCompatActivity implements
     public static final int INDEX_FAVORITES_SYNOPSIS = 3;
     public static final int INDEX_FAVORITES_POSTER_LOC = 4;
 
-    //TODO setup runtime permission writing to external storage to support 23APK and above
-    //https://developer.android.com/training/permissions/requesting.html
+    public static final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,6 +110,7 @@ public class MovieDetail extends AppCompatActivity implements
         mReleaseDate = (TextView) findViewById(R.id.detail_movie_release_date);
         mPosterImg = (ImageView) findViewById(R.id.detail_movie_poster);
         mMainLinearLayout = (LinearLayout) findViewById(R.id.mainLinearLayout);
+        mEmptyView = (TextView) findViewById(R.id.empty_view_detail);
 
         mFavoritesBtn = (Button) findViewById(R.id.add_favorites_button); //TODO want this btn to change if movie is favorited
         mFavoritesBtn.setTag(mFavoritesBtnTag);
@@ -124,8 +125,8 @@ public class MovieDetail extends AppCompatActivity implements
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
 
-        if (favoritesOrNot == MainActivity.SPINNER_POPULAR_SORT || favoritesOrNot == MainActivity.SPINNER_RATED_SORT) {
-            if(networkInfo != null && networkInfo.isConnected()) {
+        if(networkInfo != null && networkInfo.isConnected()) {
+            if (favoritesOrNot == MainActivity.SPINNER_POPULAR_SORT || favoritesOrNot == MainActivity.SPINNER_RATED_SORT) {
                 MovieClass current_movie = getIntent().getParcelableExtra(Intent.EXTRA_TEXT);
                 mPosterUrl = current_movie.getPosterUrl();
                 mMovieId = current_movie.getMovieId();
@@ -136,13 +137,23 @@ public class MovieDetail extends AppCompatActivity implements
 
                 Picasso.with(this).load(mPosterUrl).into(mPosterImg);
 
-                URL movieDbSearchUrl = NetworkUtils.buildDetailUrl(mMovieId);
-                new MovieDbQuery().execute(movieDbSearchUrl);
-            } else return; //mEmptyView.setText(R.string.no_internet_connection); //TODO Setup EmptyView in xml
-        } else if (favoritesOrNot == MainActivity.SPINNER_FAVORITES_SORT) {
-            getSupportLoaderManager().initLoader(ID_FAVORITES_LOADER, null, this);
-            //TODO Do I have any network based decisions to make for Favorites view?//
+
             }
+            URL movieDbSearchUrl = NetworkUtils.buildDetailUrl(mMovieId);
+            new MovieDbQuery().execute(movieDbSearchUrl);
+
+            if (favoritesOrNot == MainActivity.SPINNER_FAVORITES_SORT) {
+                getSupportLoaderManager().initLoader(ID_FAVORITES_LOADER, null, this);
+            }
+        } else {
+            if (favoritesOrNot == MainActivity.SPINNER_FAVORITES_SORT) {
+                getSupportLoaderManager().initLoader(ID_FAVORITES_LOADER, null, this);
+            } else {
+                mEmptyView.setVisibility(View.VISIBLE);
+                mEmptyView.setText(R.string.no_internet_connection);
+            }
+        }
+        rwPermissionRequest();
     }
 
     @Override
@@ -150,7 +161,11 @@ public class MovieDetail extends AppCompatActivity implements
         String viewTag = (String) view.getTag();
 
         if (viewTag.equals(mFavoritesBtnTag)) {
-            addMovieToFavorites();
+            if (mHasRwPermission) {
+                addMovieToFavorites();
+            } else {
+                Toast.makeText(this, "Unable to save to phone", Toast.LENGTH_LONG).show();
+            }
         } else if (viewTag != null){
             //retrieve videoId from view and use it to build video Uri
             String videoId = viewTag;
@@ -247,27 +262,6 @@ public class MovieDetail extends AppCompatActivity implements
         return builtUri;
     }
 
-    public void addMovieToFavorites() {
-        //Pull information from Views to store in ContentValues
-        ContentValues movieDetails = new ContentValues();
-        movieDetails.put(FavoritesEntry.COLUMN_MOVIE_TITLE,String.valueOf(mMovieTitle.getText()));
-        movieDetails.put(FavoritesEntry.COLUMN_MOVIE_ID,mMovieId);
-        movieDetails.put(FavoritesEntry.COLUMN_MOVIE_RATING,String.valueOf(mMovieRating.getText()));
-        movieDetails.put(FavoritesEntry.COLUMN_MOVIE_RELEASE_DATE,String.valueOf(mReleaseDate.getText()));
-        movieDetails.put(FavoritesEntry.COLUMN_MOVIE_SYNOPSIS,String.valueOf(mMovieSynopsis.getText()));
-
-        Picasso.with(this).load(mPosterUrl).error(R.drawable.image_error).into(target);
-        movieDetails.put(FavoritesEntry.COLUMN_MOVIE_POSTER_LOC, mPosterPath);
-
-        Uri uri = getContentResolver().insert(FavoritesEntry.CONTENT_URI,movieDetails);
-
-        if(uri != null) {
-            Toast.makeText(getBaseContext(),
-                    String.valueOf(mMovieTitle.getText()) + " " + getString(R.string.saved_to_favorites),
-                    Toast.LENGTH_LONG).show();
-        }
-    }
-
     //saves poster into a given folder and saves path to be stored in db
     private Target target = new Target() { //TODO Can this be moved out to a util doc?
         @Override
@@ -301,6 +295,31 @@ public class MovieDetail extends AppCompatActivity implements
         public void onPrepareLoad(Drawable placeHolderDrawable) {}
     };
 
+    public void addMovieToFavorites() {
+        //Pull information from Views to store in ContentValues
+        ContentValues movieDetails = new ContentValues();
+        movieDetails.put(FavoritesEntry.COLUMN_MOVIE_TITLE,String.valueOf(mMovieTitle.getText()));
+        movieDetails.put(FavoritesEntry.COLUMN_MOVIE_ID,mMovieId);
+        movieDetails.put(FavoritesEntry.COLUMN_MOVIE_RATING,String.valueOf(mMovieRating.getText()));
+        movieDetails.put(FavoritesEntry.COLUMN_MOVIE_RELEASE_DATE,String.valueOf(mReleaseDate.getText()));
+        movieDetails.put(FavoritesEntry.COLUMN_MOVIE_SYNOPSIS,String.valueOf(mMovieSynopsis.getText()));
+
+        if (mHasRwPermission) {
+            Picasso.with(this).load(mPosterUrl).error(R.drawable.image_error).into(target);
+            movieDetails.put(FavoritesEntry.COLUMN_MOVIE_POSTER_LOC, mPosterPath);
+        } else {
+            movieDetails.put(FavoritesEntry.COLUMN_MOVIE_POSTER_LOC, "0");
+        }
+
+        Uri uri = getContentResolver().insert(FavoritesEntry.CONTENT_URI,movieDetails);
+
+        if(uri != null) {
+            Toast.makeText(getBaseContext(),
+                    String.valueOf(mMovieTitle.getText()) + " " + getString(R.string.saved_to_favorites),
+                    Toast.LENGTH_LONG).show();
+        }
+    }
+
     //For querying the sql db for Favorites
     @Override
     public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
@@ -333,11 +352,16 @@ public class MovieDetail extends AppCompatActivity implements
         }
 
         if (!cursorHasValidData) {
+            mEmptyView.setVisibility(View.VISIBLE);
+            mEmptyView.setText(R.string.no_favorites);
             return;
         }
 
-        String posterPath = data.getString(INDEX_FAVORITES_POSTER_LOC);
-        Picasso.with(this).load(new File(posterPath)).into(mPosterImg);
+        rwPermissionRequest();
+        if (mHasRwPermission){
+            String posterPath = data.getString(INDEX_FAVORITES_POSTER_LOC);
+            Picasso.with(this).load(new File(posterPath)).into(mPosterImg);
+        } else Picasso.with(this).load(R.drawable.image_error).into(mPosterImg);
 
         mMovieTitle.setText(data.getString(INDEX_FAVORITES_TITLE));
         mMovieRating.setText(data.getString(INDEX_FAVORITES_RATING));
@@ -348,32 +372,28 @@ public class MovieDetail extends AppCompatActivity implements
     @Override
     public void onLoaderReset(Loader<Cursor> loader) { mFavAdapter.swapCursor(null); }
 
-    //Requesting permissions to read/write
-    public void permissionRequest () {
-//        if (ContextCompat.checkSelfPermission(thisActivity,
-//                Manifest.permission.READ_CONTACTS)
-//                != PackageManager.PERMISSION_GRANTED) {
-//
-//            // Should we show an explanation?
-//            if (ActivityCompat.shouldShowRequestPermissionRationale(thisActivity,
-//                    Manifest.permission.READ_CONTACTS)) {
-//
-//                // Show an explanation to the user *asynchronously* -- don't block
-//                // this thread waiting for the user's response! After the user
-//                // sees the explanation, try again to request the permission.
-//
-//            } else {
-//
-//                // No explanation needed, we can request the permission.
-//
-//                ActivityCompat.requestPermissions(thisActivity,
-//                        new String[]{Manifest.permission.READ_CONTACTS},
-//                        MY_PERMISSIONS_REQUEST_READ_CONTACTS);
-//
-//                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-//                // app-defined int constant. The callback method gets the
-//                // result of the request.
-//            }
-//        }
+    public void rwPermissionRequest() {
+        //if permission is already granted set mHasRwPermission to true, if not then request now
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+
+        } else mHasRwPermission = true;
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[],
+                                           int[] grantResults) {
+
+        if (PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE == requestCode) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                mHasRwPermission = true;
+            } else mHasRwPermission = false;
+        }
     }
 }
