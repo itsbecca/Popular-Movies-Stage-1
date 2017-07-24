@@ -51,7 +51,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/add_favorites_button"
                 android:background="@color/colorAccent"
-                android:text="@string/favorites_btn_txt"/>
+                android:text="@string/favorites_btn_add"/>
 
         </LinearLayout>
     </LinearLayout>

@@ -17,7 +17,8 @@
     </string-array>
     <string name="title_activity_settings">Settings</string>
 
-    <string name="favorites_btn_txt">Add to Favorites</string>
+    <string name="favorites_btn_add">Add to Favorites</string>
+    <string name="favorites_btn_delete">Remove from Favorites</string>
 
     <string name="trailer_views" translatable="false">trailer_num_</string>
 
@@ -29,5 +30,6 @@
     <string name="current_movie_id" translatable="false">current_movie_id</string>
     <string name="saved_to_favorites">saved to favorites</string>
     <string name="no_favorites">You have not saved any favorites yet</string>
-    <string name="spinner_state">spinner_state</string>
+    <string name="spinner_state" translatable="false">spinner_state</string>
+    <string name="removed_from_favorites">removed from favorites</string>
 </resources>

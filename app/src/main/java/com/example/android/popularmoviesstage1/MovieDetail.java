@@ -64,7 +64,7 @@ public class MovieDetail extends AppCompatActivity implements
     TextView mEmptyView;
 
     // to identify btn click
-    String mFavoritesBtnTag = "add_favorites";
+    String mFavoritesBtnTag = "favorites_btn";
 
     //LinearLayout that will hold views created programmatically to hold trailers and reviews if available for movie
     LinearLayout mMainLinearLayout;
@@ -78,8 +78,10 @@ public class MovieDetail extends AppCompatActivity implements
     final static String YOUTUBE_QUERY = "v";
 
     //vars related to loading favorites from db
+    int whichSpinnerSort;
     FavoritesAdapter mFavAdapter;
-    private static final int ID_FAVORITES_LOADER = 42;
+    private static final int ADD_FAVORITES_LOADER = 40;
+    private static final int REMOVE_FAVORITES_LOADER = 41;
     private static final String TAG = MovieDetail.class.getSimpleName();
 
     //String Arrays to keep projected columns and their matching indices to access the returned data
@@ -112,21 +114,21 @@ public class MovieDetail extends AppCompatActivity implements
         mMainLinearLayout = (LinearLayout) findViewById(R.id.mainLinearLayout);
         mEmptyView = (TextView) findViewById(R.id.empty_view_detail);
 
-        mFavoritesBtn = (Button) findViewById(R.id.add_favorites_button); //TODO want this btn to change if movie is favorited
+        mFavoritesBtn = (Button) findViewById(R.id.add_favorites_button);
         mFavoritesBtn.setTag(mFavoritesBtnTag);
-        mFavoritesBtn.setOnClickListener(MovieDetail.this); //todo if movie is favorited, clicking should delete from favorites db
+        mFavoritesBtn.setOnClickListener(MovieDetail.this);
 
         mFavAdapter = new FavoritesAdapter(this);
 
         Bundle extras = getIntent().getExtras();
-        int favoritesOrNot = extras.getInt(getResources().getString(R.string.sort_type));
+        whichSpinnerSort = extras.getInt(getResources().getString(R.string.sort_type));
         mMovieId = extras.getString(getResources().getString(R.string.current_movie_id));
 
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
 
         if(networkInfo != null && networkInfo.isConnected()) {
-            if (favoritesOrNot == MainActivity.SPINNER_POPULAR_SORT || favoritesOrNot == MainActivity.SPINNER_RATED_SORT) {
+            if (whichSpinnerSort == MainActivity.SPINNER_POPULAR_SORT || whichSpinnerSort == MainActivity.SPINNER_RATED_SORT) {
                 MovieClass current_movie = getIntent().getParcelableExtra(Intent.EXTRA_TEXT);
                 mPosterUrl = current_movie.getPosterUrl();
                 mMovieId = current_movie.getMovieId();
@@ -142,12 +144,13 @@ public class MovieDetail extends AppCompatActivity implements
             URL movieDbSearchUrl = NetworkUtils.buildDetailUrl(mMovieId);
             new MovieDbQuery().execute(movieDbSearchUrl);
 
-            if (favoritesOrNot == MainActivity.SPINNER_FAVORITES_SORT) {
-                getSupportLoaderManager().initLoader(ID_FAVORITES_LOADER, null, this);
+            if (whichSpinnerSort == MainActivity.SPINNER_FAVORITES_SORT) {
+                mFavoritesBtn.setText(R.string.favorites_btn_delete);
+                getSupportLoaderManager().initLoader(ADD_FAVORITES_LOADER, null, this);
             }
         } else {
-            if (favoritesOrNot == MainActivity.SPINNER_FAVORITES_SORT) {
-                getSupportLoaderManager().initLoader(ID_FAVORITES_LOADER, null, this);
+            if (whichSpinnerSort == MainActivity.SPINNER_FAVORITES_SORT) {
+                getSupportLoaderManager().initLoader(ADD_FAVORITES_LOADER, null, this);
             } else {
                 mEmptyView.setVisibility(View.VISIBLE);
                 mEmptyView.setText(R.string.no_internet_connection);
@@ -161,7 +164,11 @@ public class MovieDetail extends AppCompatActivity implements
         String viewTag = (String) view.getTag();
 
         if (viewTag.equals(mFavoritesBtnTag)) {
+            if (whichSpinnerSort == MainActivity.SPINNER_FAVORITES_SORT) {
+                deleteMovieFromFavorites();
+            } else {
                 addMovieToFavorites();
+            }
 
         } else if (viewTag != null){
             //retrieve videoId from view and use it to build video Uri
@@ -308,6 +315,18 @@ public class MovieDetail extends AppCompatActivity implements
         }
     }
 
+    public void deleteMovieFromFavorites() {
+        Uri movieUri = FavoritesEntry.buildUriWithMovieId(mMovieId);
+        int deleteResults = getContentResolver().delete(movieUri, null, null);
+
+        if (deleteResults != 0) {
+            Toast.makeText(getBaseContext(),
+                    String.valueOf(mMovieTitle.getText()) + " " + getString(R.string.removed_from_favorites),
+                    Toast.LENGTH_LONG).show();
+        }
+
+    }
+
     //For querying the sql db for Favorites
     @Override
     public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
@@ -315,7 +334,7 @@ public class MovieDetail extends AppCompatActivity implements
         Uri movieUri = FavoritesEntry.buildUriWithMovieId(mMovieId);
 
         switch (loaderId) {
-            case ID_FAVORITES_LOADER:
+            case ADD_FAVORITES_LOADER:
                 return new CursorLoader(this,
                         movieUri,
                         MOVIE_DETAIL_PROJECTION,
@@ -345,7 +364,6 @@ public class MovieDetail extends AppCompatActivity implements
             return;
         }
 
-        rwPermissionRequest();
         if (mHasRwPermission){
             String posterPath = data.getString(INDEX_FAVORITES_POSTER_LOC);
             Picasso.with(this).load(new File(posterPath)).into(mPosterImg);

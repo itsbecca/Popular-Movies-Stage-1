@@ -220,6 +220,7 @@ public class MainActivity extends AppCompatActivity implements
             public void deliverResult(Cursor data) {
                 mFavoritesData = data;
                 super.deliverResult(data);
+                int test = data.getCount();
 
                 //if the favorites db is empty we will return a msg informing the user
                 if (data.getCount() <= 0) {
@@ -242,5 +243,6 @@ public class MainActivity extends AppCompatActivity implements
         outState.putString(getString(R.string.spinner_state),spinnerData);
     }
     //TODO Correct up button, system back works, but up makes savedinstancestate null
+
 }
 
