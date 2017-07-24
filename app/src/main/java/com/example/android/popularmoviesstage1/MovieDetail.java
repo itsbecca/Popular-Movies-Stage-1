@@ -153,7 +153,6 @@ public class MovieDetail extends AppCompatActivity implements
                 mEmptyView.setText(R.string.no_internet_connection);
             }
         }
-        rwPermissionRequest();
     }
 
     @Override
@@ -161,6 +160,7 @@ public class MovieDetail extends AppCompatActivity implements
         String viewTag = (String) view.getTag();
 
         if (viewTag.equals(mFavoritesBtnTag)) {
+            rwPermissionRequest();
             if (mHasRwPermission) {
                 addMovieToFavorites();
             } else {
