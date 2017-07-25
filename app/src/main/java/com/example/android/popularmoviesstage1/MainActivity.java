@@ -79,11 +79,7 @@ public class MainActivity extends AppCompatActivity implements
 
         Spinner spinner = (Spinner) findViewById(R.id.spinner);
         spinner.setOnItemSelectedListener(new SpinnerSort());
-
-        if ((savedInstanceState != null) &&
-            (savedInstanceState.getString(getString(R.string.spinner_state)) != null)) {
-            spinnerData = savedInstanceState.getString(getString(R.string.spinner_state));
-        } else spinnerData = spinner.getSelectedItem().toString();
+        spinnerData = spinner.getSelectedItem().toString();
 
         //check for internet connection
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -220,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements
             public void deliverResult(Cursor data) {
                 mFavoritesData = data;
                 super.deliverResult(data);
-                int test = data.getCount();
+                int test = data.getCount(); //TODO delete when finished debugging
 
                 //if the favorites db is empty we will return a msg informing the user
                 if (data.getCount() <= 0) {
@@ -236,13 +232,5 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) { mFavAdapter.swapCursor(null); }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putString(getString(R.string.spinner_state),spinnerData);
-    }
-    //TODO Correct up button, system back works, but up makes savedinstancestate null
-
 }
 
