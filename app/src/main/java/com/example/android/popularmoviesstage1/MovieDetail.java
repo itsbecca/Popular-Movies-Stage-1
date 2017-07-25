@@ -104,7 +104,7 @@ public class MovieDetail extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_movie_detail_constraint);
+        setContentView(R.layout.activity_movie_detail);
 
         mMovieTitle = (TextView) findViewById(R.id.detail_movie_title);
         mMovieSynopsis = (TextView) findViewById(R.id.detail_movie_synopsis);
@@ -230,7 +230,8 @@ public class MovieDetail extends AppCompatActivity implements
                             TextView trailerTextView = new TextView(MovieDetail.this);
                             mMainLinearLayout.addView(trailerTextView);
                             trailerTextView.setTag(videoId);
-                            trailerTextView.setText("Click to play " + videoTitle); //todo get rid of string
+                            trailerTextView.setText("Click to play " + videoTitle); //TODO can I just do a theme?
+                            trailerTextView.setTextSize(getResources().getDimension(R.dimen.body_text));
                             trailerTextView.setOnClickListener(MovieDetail.this);
                             trailerTextView.setBackgroundResource(R.drawable.play_btn);
                             trailerTextView.setGravity(Gravity.CENTER_VERTICAL);
@@ -249,6 +250,7 @@ public class MovieDetail extends AppCompatActivity implements
                             TextView reviewTextView = new TextView(MovieDetail.this);
                             mMainLinearLayout.addView(reviewTextView);
                             reviewTextView.setTag(reviewUrl);
+                            reviewTextView.setTextSize(getResources().getDimension(R.dimen.body_text));
                             reviewTextView.setText("\n\nReviewer: " + reviewerName +
                                     "\n\n" + reviewText);
                         }

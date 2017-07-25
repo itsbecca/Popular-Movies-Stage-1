@@ -216,7 +216,6 @@ public class MainActivity extends AppCompatActivity implements
             public void deliverResult(Cursor data) {
                 mFavoritesData = data;
                 super.deliverResult(data);
-                int test = data.getCount(); //TODO delete when finished debugging
 
                 //if the favorites db is empty we will return a msg informing the user
                 if (data.getCount() <= 0) {

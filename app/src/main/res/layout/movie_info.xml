@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--TODO check for hardcoded dimens or possible themes-->
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/detail_movie_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/space_small"
+        android:layout_marginStart="@dimen/space_small"
+        android:layout_marginTop="@dimen/space_small"
+        android:textSize="@dimen/title"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Movie Title" />
+
+    <TextView
+        android:id="@+id/detail_movie_release_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_small"
+        app:layout_constraintLeft_toLeftOf="@+id/detail_movie_title"
+        app:layout_constraintTop_toBottomOf="@+id/detail_movie_title"
+        android:textSize="@dimen/body_text"
+        tools:text="June 10th" />
+
+    <TextView
+        android:id="@+id/detail_movie_rating"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_small"
+        app:layout_constraintLeft_toLeftOf="@+id/detail_movie_title"
+        app:layout_constraintTop_toBottomOf="@+id/detail_movie_release_date"
+        android:textSize="@dimen/body_text"
+        tools:text="6.5" />
+
+    <Button
+        android:id="@+id/add_favorites_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/space_small"
+        android:layout_marginRight="@dimen/space_small"
+        android:layout_marginTop="@dimen/space_small"
+        android:background="@color/colorAccent"
+        android:paddingLeft="@dimen/space_small"
+        android:paddingRight="@dimen/space_small"
+        android:text="@string/favorites_btn_add"
+        android:textSize="@dimen/body_text"
+        android:maxLines="10"
+        android:maxWidth="200dp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/detail_movie_release_date"
+        app:layout_constraintBottom_toTopOf="@+id/detail_movie_synopsis"
+        android:layout_marginBottom="@dimen/space_small" />
+
+
+    <TextView
+        android:id="@+id/detail_movie_synopsis"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/colorAccentLight"
+        android:layout_marginTop="@dimen/space_large"
+        android:padding="@dimen/space_small"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/detail_movie_rating"
+        android:textSize="@dimen/body_text"
+        tools:text="Gru and his wife Lucy must stop former '80s child star Balthazar Bratt from achieving world domination." />
+
+    <!-- Empty view is only visible when the list has no items. -->
+    <TextView
+        android:id="@+id/empty_view_detail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="@dimen/space_small"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</android.support.constraint.ConstraintLayout>

@@ -31,4 +31,6 @@
     <string name="saved_to_favorites">saved to favorites</string>
     <string name="no_favorites">You have not saved any favorites yet</string>
     <string name="removed_from_favorites">removed from favorites</string>
+
+    <string name="sp">sp</string>
 </resources>
