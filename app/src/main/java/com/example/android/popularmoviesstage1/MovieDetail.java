@@ -111,7 +111,7 @@ public class MovieDetail extends AppCompatActivity implements
         mMovieRating = (TextView) findViewById(R.id.detail_movie_rating);
         mReleaseDate = (TextView) findViewById(R.id.detail_movie_release_date);
         mPosterImg = (ImageView) findViewById(R.id.detail_movie_poster);
-        mMainLinearLayout = (LinearLayout) findViewById(R.id.mainLinearLayout);
+        mMainLinearLayout = (LinearLayout) findViewById(R.id.detail_linear_layout);
         mEmptyView = (TextView) findViewById(R.id.empty_view_detail);
 
         mFavoritesBtn = (Button) findViewById(R.id.add_favorites_button);
@@ -231,6 +231,7 @@ public class MovieDetail extends AppCompatActivity implements
                             mMainLinearLayout.addView(trailerTextView);
                             trailerTextView.setTag(videoId);
                             trailerTextView.setText("Click to play " + videoTitle); //TODO can I just do a theme?
+
                             trailerTextView.setTextSize(getResources().getDimension(R.dimen.body_text));
                             trailerTextView.setOnClickListener(MovieDetail.this);
                             trailerTextView.setBackgroundResource(R.drawable.play_btn);

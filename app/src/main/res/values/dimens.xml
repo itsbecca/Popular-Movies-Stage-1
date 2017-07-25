@@ -10,6 +10,8 @@
     <dimen name="title">34sp</dimen>
     <dimen name="body_text">12sp</dimen>
 
+    <string name="fav_btn_position">0.9</string>
+
 
     <integer name="gallery_columns">3</integer>
 </resources>

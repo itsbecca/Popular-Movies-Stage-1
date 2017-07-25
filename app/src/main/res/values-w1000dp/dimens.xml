@@ -3,4 +3,7 @@
 
     <dimen name="horizontal_rule">700dp</dimen>
 
+
+    <string name="fav_btn_position">0.1</string>
+
 </resources>
