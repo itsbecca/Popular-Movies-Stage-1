@@ -19,7 +19,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -82,7 +81,6 @@ public class MovieDetail extends AppCompatActivity implements
     int whichSpinnerSort;
     FavoritesAdapter mFavAdapter;
     private static final int ADD_FAVORITES_LOADER = 40;
-    private static final int REMOVE_FAVORITES_LOADER = 41;
     private static final String TAG = MovieDetail.class.getSimpleName();
 
     //String Arrays to keep projected columns and their matching indices to access the returned data
@@ -105,7 +103,7 @@ public class MovieDetail extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_movie_detail);
+        setContentView(R.layout.activity_movie_detail_constraint);
 
         mMovieTitle = (TextView) findViewById(R.id.detail_movie_title);
         mMovieSynopsis = (TextView) findViewById(R.id.detail_movie_synopsis);
@@ -142,6 +140,7 @@ public class MovieDetail extends AppCompatActivity implements
 
 
             }
+            mFavoritesBtn.setVisibility(View.VISIBLE);
             URL movieDbSearchUrl = NetworkUtils.buildDetailUrl(mMovieId);
             new MovieDbQuery().execute(movieDbSearchUrl);
 
@@ -151,10 +150,12 @@ public class MovieDetail extends AppCompatActivity implements
             }
         } else {
             if (whichSpinnerSort == MainActivity.SPINNER_FAVORITES_SORT) {
+                mFavoritesBtn.setVisibility(View.VISIBLE);
                 getSupportLoaderManager().initLoader(ADD_FAVORITES_LOADER, null, this);
             } else {
                 mEmptyView.setVisibility(View.VISIBLE);
                 mEmptyView.setText(R.string.no_internet_connection);
+                mFavoritesBtn.setVisibility(View.INVISIBLE);
             }
         }
         rwPermissionRequest();
