@@ -21,6 +21,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -217,6 +218,7 @@ public class MovieDetail extends AppCompatActivity implements
                 ArrayList<String> trailerResults = movieDbSearchResults.get(0);
                 ArrayList<String> reviewResults = movieDbSearchResults.get(1);
 
+
                 for (int i = 0; i < movieDbSearchResults.size(); i++) {
                     //Creates views for the first three trailers
                     if(i==0) {
@@ -224,12 +226,17 @@ public class MovieDetail extends AppCompatActivity implements
                             String videoId = trailerResults.get(f);
                             String videoTitle = trailerResults.get(f+1);
 
+                            createHorizontalRule();
                             TextView trailerTextView = new TextView(MovieDetail.this);
                             mMainLinearLayout.addView(trailerTextView);
                             trailerTextView.setTag(videoId);
-                            trailerTextView.setText("Click to play " + videoTitle);
+                            trailerTextView.setText("Click to play " + videoTitle); //todo get rid of string
                             trailerTextView.setOnClickListener(MovieDetail.this);
+                            trailerTextView.setBackgroundResource(R.drawable.play_btn);
+                            trailerTextView.setGravity(Gravity.CENTER_VERTICAL);
+                            trailerTextView.setPadding(128,32,0,32);
                         }
+                        createHorizontalRule();
                     }
 
                     //Create views for the reviews
@@ -242,13 +249,23 @@ public class MovieDetail extends AppCompatActivity implements
                             TextView reviewTextView = new TextView(MovieDetail.this);
                             mMainLinearLayout.addView(reviewTextView);
                             reviewTextView.setTag(reviewUrl);
-                            reviewTextView.setText("Reviewer: " + reviewerName +
+                            reviewTextView.setText("\n\nReviewer: " + reviewerName +
                                     "\n\n" + reviewText);
                         }
                     }
                 }
             }
         }
+    }
+
+    public void createHorizontalRule() {
+        View v = new View(getApplicationContext());
+        v.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                5
+        ));
+        v.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+        mMainLinearLayout.addView(v);
     }
 
     public Uri buildTrailerUrl(String videoId) {
