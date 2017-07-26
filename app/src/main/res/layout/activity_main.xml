@@ -23,6 +23,7 @@
         android:id="@+id/spinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:dropDownSelector="@color/colorAccentLight"
         android:prompt="@string/spinner_prompt"
         android:entries="@array/movie_sort_array"/>
 
@@ -44,6 +45,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:textSize="@dimen/title"
         android:textAppearance="?android:textAppearanceMedium"/>
 
 </LinearLayout>

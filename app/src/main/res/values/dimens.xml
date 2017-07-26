@@ -7,11 +7,13 @@
     <dimen name="space_med">16dp</dimen>
     <dimen name="space_large">32dp</dimen>
 
-    <dimen name="title">34sp</dimen>
+    <dimen name="title">28sp</dimen>
+    <dimen name="subhead">16sp</dimen>
+    <dimen name="button_text">12sp</dimen>
+
+    <!--need to be same, one for xml and one for views created programmatically-->
     <dimen name="body_text">12sp</dimen>
-
-    <string name="fav_btn_position">0.9</string>
-
+    <integer name="body_text_activity">12</integer>
 
     <integer name="gallery_columns">3</integer>
 </resources>

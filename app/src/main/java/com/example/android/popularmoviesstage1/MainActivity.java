@@ -16,6 +16,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -77,7 +78,13 @@ public class MainActivity extends AppCompatActivity implements
         mMovieAdapter = new MovieAdapter(this);
         mFavAdapter = new FavoritesAdapter(this, this);
 
+        ArrayAdapter adapter = ArrayAdapter.createFromResource(this,
+                        R.array.movie_sort_array, R.layout.spinner_item);
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+
+
         Spinner spinner = (Spinner) findViewById(R.id.spinner);
+        spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(new SpinnerSort());
         spinnerData = spinner.getSelectedItem().toString();
 

@@ -230,9 +230,9 @@ public class MovieDetail extends AppCompatActivity implements
                             TextView trailerTextView = new TextView(MovieDetail.this);
                             mMainLinearLayout.addView(trailerTextView);
                             trailerTextView.setTag(videoId);
-                            trailerTextView.setText("Click to play " + videoTitle); //TODO can I just do a theme?
+                            trailerTextView.setText("Click to play " + videoTitle);
 
-                            trailerTextView.setTextSize(getResources().getDimension(R.dimen.body_text));
+                            trailerTextView.setTextSize(getResources().getInteger(R.integer.body_text_activity));
                             trailerTextView.setOnClickListener(MovieDetail.this);
                             trailerTextView.setBackgroundResource(R.drawable.play_btn);
                             trailerTextView.setGravity(Gravity.CENTER_VERTICAL);
@@ -251,7 +251,7 @@ public class MovieDetail extends AppCompatActivity implements
                             TextView reviewTextView = new TextView(MovieDetail.this);
                             mMainLinearLayout.addView(reviewTextView);
                             reviewTextView.setTag(reviewUrl);
-                            reviewTextView.setTextSize(getResources().getDimension(R.dimen.body_text));
+                            reviewTextView.setTextSize(getResources().getInteger(R.integer.body_text_activity));
                             reviewTextView.setText("\n\nReviewer: " + reviewerName +
                                     "\n\n" + reviewText);
                         }
