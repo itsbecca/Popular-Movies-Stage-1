@@ -7,6 +7,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -20,7 +21,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.android.popularmoviesstage1.data.FavoritesContract;
 import com.example.android.popularmoviesstage1.utilities.MovieDbJsonUtils;
@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements
     MovieAdapter mMovieAdapter;
     FavoritesAdapter mFavAdapter;
     Cursor mFavoritesData;
+    boolean mHasInternet;
 
     RecyclerView mList;
     ArrayList<MovieClass> jsonMovieDbData;
@@ -52,6 +53,11 @@ public class MainActivity extends AppCompatActivity implements
     public static final int SPINNER_POPULAR_SORT = 0;
     public static final int SPINNER_RATED_SORT = 1;
     public static final int SPINNER_FAVORITES_SORT = 2;
+
+    //For saving state orientation change
+    public static final String SAVED_INSTANCE_ID = "savedScroll";
+    Bundle mSavedInstanceState;
+    Parcelable mPreviousState;
 
 
     LoaderManager.LoaderCallbacks mLoaderCallbacks = this;
@@ -69,19 +75,24 @@ public class MainActivity extends AppCompatActivity implements
         mList = (RecyclerView) findViewById(R.id.recyclerview_movie);
         spinnerArray = getResources().getStringArray(R.array.movie_sort_array);
 
-        //number of columns adjusts depending on layout
-        final int columns = getResources().getInteger(R.integer.gallery_columns);
-        GridLayoutManager layoutManager = new GridLayoutManager(this, columns, GridLayoutManager.VERTICAL, false);
+        //Grid creation
+        final int columns = getResources().getInteger(R.integer.gallery_columns); //number of columns adjusts depending on layout
+        GridLayoutManager layoutManager = new GridLayoutManager(this, columns,
+                GridLayoutManager.VERTICAL, false);
         mList.setLayoutManager(layoutManager);
         mList.setHasFixedSize(true);
 
         mMovieAdapter = new MovieAdapter(this);
         mFavAdapter = new FavoritesAdapter(this, this);
 
+        if (savedInstanceState !=null) {
+            mSavedInstanceState = savedInstanceState;
+        }
+
+        //Spinner creation
         ArrayAdapter adapter = ArrayAdapter.createFromResource(this,
                         R.array.movie_sort_array, R.layout.spinner_item);
         adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-
 
         Spinner spinner = (Spinner) findViewById(R.id.spinner);
         spinner.setAdapter(adapter);
@@ -89,10 +100,11 @@ public class MainActivity extends AppCompatActivity implements
         spinnerData = spinner.getSelectedItem().toString();
 
         //check for internet connection
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connectivityManager = (ConnectivityManager)
+                getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         if(networkInfo != null && networkInfo.isConnected()) {
-            makeMovieDbSearchQuery();
+            mHasInternet = true;
         } else {
             mEmptyView.setVisibility(View.VISIBLE);
             mEmptyView.setText(R.string.offline_main);
@@ -123,6 +135,9 @@ public class MainActivity extends AppCompatActivity implements
             makeMovieDbSearchQuery();
         } else if (spinnerData.equals((spinnerArray[SPINNER_FAVORITES_SORT]))) {
             mList.setAdapter(mFavAdapter);
+            if (mSavedInstanceState != null) {
+                restoreInstanceState();
+            }
             getSupportLoaderManager().initLoader(ID_FAVORITES_LOADER, null, mLoaderCallbacks);
         }
     }
@@ -141,9 +156,10 @@ public class MainActivity extends AppCompatActivity implements
             intent.putExtra(Intent.EXTRA_TEXT, jsonMovieDbData.get(clickedItemIndex));
             intent.putExtra(getResources().getString(R.string.sort_type),SPINNER_POPULAR_SORT);
         } else if (spinnerData.equals((spinnerArray[SPINNER_FAVORITES_SORT]))){
-            //retreive movieId for clicked film to send to MovieDetail
+            //retrieve movieId for clicked film to send to MovieDetail
             mFavoritesData.moveToPosition(clickedItemIndex);
-            String movieId = mFavoritesData.getString(mFavoritesData.getColumnIndex(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_ID));
+            String movieId = mFavoritesData.getString(mFavoritesData.getColumnIndex
+                    (FavoritesContract.FavoritesEntry.COLUMN_MOVIE_ID));
             intent.putExtra(getResources().getString(R.string.current_movie_id),movieId);
 
             //store int that tracks if user clicked through favorites sort or not
@@ -164,7 +180,8 @@ public class MainActivity extends AppCompatActivity implements
 
             try {
                 String jsonMovieDbResponse = NetworkUtils.getResponseFromHttpUrl(searchUrl);
-                jsonMovieDbData = MovieDbJsonUtils.getMovieDbStringsFromJson(MainActivity.this, jsonMovieDbResponse);
+                jsonMovieDbData = MovieDbJsonUtils.getMovieDbStringsFromJson(MainActivity.this,
+                        jsonMovieDbResponse);
                 return jsonMovieDbData;
             } catch (IOException e) {
                 e.printStackTrace();
@@ -182,9 +199,13 @@ public class MainActivity extends AppCompatActivity implements
             if (movieDbSearchResults != null) {
                 mEmptyView.setVisibility(View.INVISIBLE);
                 mMovieAdapter.setMovieInfo(movieDbSearchResults);
-
+                if (mSavedInstanceState != null) {
+                    restoreInstanceState();
+                }
             } else {
-                mEmptyView.setText(R.string.no_results);
+                if(mHasInternet) {
+                    mEmptyView.setText(R.string.no_results);
+                } else mEmptyView.setText(R.string.offline_main);
             }
         }
 
@@ -238,5 +259,27 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) { mFavAdapter.swapCursor(null); }
+
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Parcelable currentState = mList.getLayoutManager().onSaveInstanceState();
+        outState.putParcelable(SAVED_INSTANCE_ID, currentState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        mSavedInstanceState = savedInstanceState;
+        restoreInstanceState();
+    }
+
+
+    public void restoreInstanceState () {
+        mPreviousState = mSavedInstanceState.getParcelable(SAVED_INSTANCE_ID);
+        mList.getLayoutManager().onRestoreInstanceState(mPreviousState);
+    }
+
 }
 
